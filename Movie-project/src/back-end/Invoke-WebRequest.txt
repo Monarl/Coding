@@ -1,8 +1,0 @@
-#Get
-Invoke-WebRequest -Uri "http://localhost:8000/api/v1/reviews/movie/12" -Method GET 
-
-#Put
-Invoke-WebRequest -Uri "http://localhost:8000/api/v1/reviews/670b9ec54841fde8a938b010" -Method PUT -Headers @{ "Content-Type" = "application/json" } -Body '{"user": "beau", "review": "horrible"}'
-
-#Post
-Invoke-WebRequest -Uri "http://localhost:8000/api/v1/reviews/new" -Method POST -Headers @{ "Content-Type" = "application/json" } -Body '{"movieId": 13, "user": "beau", "review": "awesome"}'
