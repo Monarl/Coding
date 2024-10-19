@@ -1,7 +1,7 @@
 import {useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setMovies } from './redux/movieSlice';
-
+import { Link } from 'react-router-dom';
 
 const APILINK = 'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=19f5f46e79fcd98320c0d2a8055481e8&page=1';
 const IMG_PATH = 'https://image.tmdb.org/t/p/w1280';
@@ -51,7 +51,7 @@ const MovieApp = () => {
                             <center>
                                 <img src={IMG_PATH + movie.poster_path} className={"thumbnail"}/>
                             </center>
-                            <h3>{movie.title}</h3 >
+                            <h3>{movie.title}<br /><Link to = {`/reviews?id=${movie.id}&title=${encodeURIComponent(movie.title)}`}>Reviews</Link></h3 >
                         </div>
                     </div>
                 </div>
