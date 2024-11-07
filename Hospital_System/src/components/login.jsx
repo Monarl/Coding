@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = (props) => {
@@ -9,32 +9,91 @@ const Login = (props) => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (props.loggedIn) {
+      navigate('/patients')
+    } 
+  }, [props.loggedIn, navigate]) //If logged in, go to the database page
+
+  const checkAccountExists = (callback) => {
+    fetch('http://localhost:8000/login/check-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    })
+      .then((r) => r.json())
+      .then((r) => {
+        callback(r?.userExists)
+      })
+  }
+  
+  // Log in a user using email and password
+  const logIn = () => {
+    fetch('http://localhost:8000/login/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((r) => r.json())
+      .then((r) => {
+        if ('success' === r.message) {
+          const now = new Date()
+          localStorage.setItem('user', JSON.stringify({ email: email, expiry: now.getTime() + 3600000, token: r.token }))
+          props.setLoggedIn(true)
+          props.setEmail(email)
+          navigate('/patients')
+        } else {
+          window.alert('Wrong email or password')
+        }
+      })
+  }
+
   const onButtonClick = () => {
     setEmailError('')
     setPasswordError('')
   
     // Check if the user has entered both fields correctly
-    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-      setEmailError('Please enter a valid email!')
-
-    }
-
     if ('' === email) {
       setEmailError('Please enter your email!')
+      return
+    }
+  
+    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      setEmailError('Please enter a valid email!')
+      return
+    }
+  
+    if ('' === password) {
+      setPasswordError('Please enter a password!')
+      return
     }
   
     if (password.length < 7) {
       setPasswordError('The password must be 8 characters or longer!')
-
+      return
     }
-    
-    if ('' === password) {
-      setPasswordError('Please enter a password!')
 
-    }
-  
-    return
-  };
+    checkAccountExists((accountExists) => {
+      // If yes, log in
+      if (accountExists) logIn()
+      else alert('An account does not exist with this email address: ' + email)
+      // Else, ask user if they want to create a new account and if yes, then log in
+    //   else if (
+    //     window.confirm(
+    //       'An account does not exist with this email address: ' +
+    //         email +
+    //         '. Do you want to create a new account?',
+    //     )
+    //   ) {
+    //     logIn()
+    //   }
+    // })
+  });
+}
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[url('/medical-records-1342x671.jpg')] bg-cover bg-center">
@@ -45,6 +104,7 @@ const Login = (props) => {
       <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-md">
         <div className="mb-6">
           <input
+            type='search'
             value={email}
             placeholder="Enter your email here"
             onChange={(ev) => setEmail(ev.target.value)}

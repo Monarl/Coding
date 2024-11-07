@@ -6,7 +6,12 @@ const Home = (props) => {
   const navigate = useNavigate()
 
   const onButtonClick = () => {
-    // You'll update this function later
+    if (loggedIn) {
+      localStorage.removeItem(email)
+      props.setLoggedIn(false)
+    } else {
+      navigate('/login')
+    }
   }
 
   return (
@@ -17,7 +22,7 @@ const Home = (props) => {
           <h1 className="text-3xl font-bold text-gray-800">Welcome!</h1>
         </div>
         <div className="text-center text-gray-600 mb-6">
-          Please login to continue using the service
+          Please {!loggedIn? 'login to' : ''} continue using the service
         </div>
         <div className="flex flex-col items-center">
           <input
