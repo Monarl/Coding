@@ -164,6 +164,7 @@ const PatientInfo = (props) => {
           'Examination date': new Date(),
           'Next_examination': new Date()
         };
+        //Need to do adjustDate again
     
         // Update state by adding the new object to the existing array
         setPatients([...patients, newPatient]);

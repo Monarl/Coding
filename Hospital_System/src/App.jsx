@@ -4,6 +4,7 @@ import Login from './components/login.jsx'
 import Patients from './components/patients.jsx'
 import About from './components/about.jsx'
 import Patient from './components/patient-info.jsx'
+import Employees from './components/employees.jsx'
 import { useEffect, useState } from 'react'
 
 function App() {
@@ -63,6 +64,10 @@ function App() {
           <Route 
             path='/patients/patient' 
             element={<Patient loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/employees' 
+            element={<Employees loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
           />
         </Routes>
       </BrowserRouter>

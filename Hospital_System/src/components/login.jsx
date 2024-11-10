@@ -42,7 +42,7 @@ const Login = (props) => {
       .then((r) => {
         if ('success' === r.message) {
           const now = new Date()
-          localStorage.setItem('user', JSON.stringify({ email: email, expiry: now.getTime() + 3600000, token: r.token }))
+          localStorage.setItem('user', JSON.stringify({ email: email, expiry: now.getTime() + 3600000, token: r.token, userCode: r.userCode, Role: r.Role}))
           props.setLoggedIn(true)
           props.setEmail(email)
           navigate('/patients')
