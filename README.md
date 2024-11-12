@@ -1,17 +1,58 @@
-This project use Vite + React and Node.js
 
-Coding will be done in "\Coding\Hospital_System\src"
+## Backend Setup
 
-Create components and route them through App.jsx
+1. **Database Configuration**:
+    - Open `index.js` in the **back-end** folder.
+    - Modify the `host`, `user`, `password`, and `database` settings to match your local MySQL configuration.
+    - For simplicity, you can directly input your credentials (avoid using `process.env`).
 
-Components will be stored in the components folder
+2. **Creating Routes**:
+    - In the **back-end** folder, create `x.route.js` files to handle routes for GET, POST, PUT, and DELETE requests.
+    - Import `db` from `index.js` to access the mysql database for GET, POST, PUT, and DELETE requests
+    - Each route file should use `export default` to export the router.
 
-Back end file will be stored in the back-end folder
+3. **Integrating Routes with Server**:
+    - In `server.js`, import and use your route files to handle API requests.
+    - Example: Use `app.use('/api', xRoute)` to integrate routes with the server.
 
-For back-end we will create the x.route.js and import db from index.js to access mysql
+## Frontend Setup
 
-Remember to modify the host, user, password and database of db in index.js to match what you set in your computer MySQL. You can just remove the procees.env and use your informatoin directly
+1. **App.jsx**:
+    - In the **src** folder, `App.jsx` serves as the main entry point for the React app.
+    - This file will handle routing for the components used across different sections of the app.
 
-In the x.route.js we will create a router and then do get/post/put/delete on this. We will "export default router" and import the router in server.js
+2. **Creating Components**:
+    - All React components should be stored in the `components` folder.
+    - Each component should be self-contained and exported as default.
 
-You can watch the code that I do to visualize the process. I'm not sure my way is efficient so if you have a better way you can do it.
+## Running the Project
+
+### Frontend:
+1. Install dependencies:
+    ```bash
+    npm install
+    ```
+2. Run the Vite development server:
+    ```bash
+    npm run dev
+    ```
+
+### Backend:
+1. Install backend dependencies:
+    ```bash
+    npm install
+    ```
+2. Start the backend server:
+    ```bash
+    nodemon server.js
+    ```
+
+## Notes
+
+- Ensure that your MySQL database is running and the credentials are correctly set in `index.js`.
+- To better understand the guide, you should watch the code I already did.
+- Feel free to improve the setup if you find a better approach or workflow.
+
+---
+
+**Happy Coding!** 🚀
