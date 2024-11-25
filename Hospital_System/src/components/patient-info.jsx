@@ -27,9 +27,22 @@ const PatientInfo = (props) => {
         today.getMonth(),
         today.getDate() + 1
     ).toISOString().split("T")[0];
+
+    const zeroAge = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 1
+    ).toISOString().split("T")[0];
+
+    const oldAge = new Date(
+        today.getFullYear() - 120,
+        today.getMonth(),
+        today.getDate() + 1
+    ).toISOString().split("T")[0];
     
     const [patients, setPatients] = useState([]);
     const [doctors, setDoctors] = useState([]);
+    const [medications, setMedications] = useState([]);
     const [patientData, setPatientData] = useState({
         F_name: '',
         L_name: '',
@@ -73,6 +86,23 @@ const PatientInfo = (props) => {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
+                data.forEach(obj => {
+                    Object.keys(obj).forEach(key => {
+                        const value = obj[key];
+                
+                        // Check if the key contains 'date' or 'dob' (case-insensitive)
+                        if (/date|dob/i.test(key)) {
+                            // Check if the value is a string and looks like a valid date
+                            if (typeof value === 'string') {
+                                const parsedDate = new Date(value);
+                                // Only adjust if it's a valid date (not NaN)
+                                if (!isNaN(parsedDate.getTime())) {
+                                    obj[key] = adjustDate(parsedDate);
+                                }
+                            }
+                        }
+                    });
+                });
                 console.log(data);
                 setPatients(data);
     
@@ -99,8 +129,18 @@ const PatientInfo = (props) => {
                     throw new Error('Network response was not ok');
                 }
                 const dataDoctors = await responseDoctors.json();
-                console.log(dataDoctors);
+                //console.log(dataDoctors);
                 setDoctors(dataDoctors);
+
+                const responseMedications = await fetch(`http://localhost:8000/patients/medication-list`);
+                if (!responseMedications.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const dataMedications = await responseMedications.json();
+                const mergedMeds = dataMedications.map(med => ({[med.Med_Code] : `${med.Med_Code}: ${med.Med_Name}`}));
+                console.log(mergedMeds);
+                setMedications(mergedMeds);
+
             } catch (error) {
                 console.error('Failed to fetch patient data:', error);
             }
@@ -129,6 +169,7 @@ const PatientInfo = (props) => {
                 ...updatedPatients[index],
                 ["new_" + name]: value
             }
+            //console.log(updatedPatients[index]);
             return updatedPatients
         })
     }
@@ -162,12 +203,19 @@ const PatientInfo = (props) => {
           'Diagnosis': 'Flu',
           'Fee': 10,
           'Examination date': new Date(),
-          'Next_examination': new Date()
+          'Next_examination': new Date(),
+          'Med_Code': 1
         };
-        //Need to do adjustDate again
     
         // Update state by adding the new object to the existing array
         setPatients([...patients, newPatient]);
+      };
+
+      const adjustDate = (dateString) => {
+        if (!dateString) return null; // Return null if date string is empty
+        const date = new Date(dateString);
+        date.setDate(date.getDate() + 1); // Add 1 day
+        return date.toISOString().split("T")[0]; // Return formatted date
       };
 
     return (
@@ -219,8 +267,8 @@ const PatientInfo = (props) => {
                                 type='date'
                                 name="Dob"
                                 value={patientData.Dob ? new Date(patientData.Dob).toISOString().split("T")[0] : ''}
-                                max={maxDate}
-                                min={minDate}
+                                max={zeroAge}
+                                min={oldAge}
                                 onChange={handleChange}
                                 disabled={edited}
                                 className='bg-slate-100 rounded-2xl px-2'
@@ -329,6 +377,7 @@ const PatientInfo = (props) => {
                                     <th className="">{(inPatient) ? "End date" : "Diagnosis"}</th>
                                     <th className="">{(inPatient) ? "Result" : "Fee"}</th>
                                     {(!inPatient) ? <th className="">Next_examination</th> : ""}
+                                    <th className="">Med_Code</th>
                                 </tr>
                             </thead>
 
@@ -410,6 +459,26 @@ const PatientInfo = (props) => {
                                                 disabled={edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
                                             />}</td> : ""}
+
+                                        <td className=""><select 
+                                                            name="Med_Code" 
+                                                            disabled={edited}
+                                                            value={patient['new_Med_Code'] || patient['Med_Code']} // Set default value here
+                                                            onChange={(e) => handleTable(e, index)} // Update selected doctor on change
+                                                            className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center disabled:text-black"
+                                                        >
+                                                           {medications.map((medication, index) => {
+                                                                const key = +Object.keys(medication)[0]; // Extract the first key
+                                                                const value = Object.values(medication)[0]; // Extract the first value
+                                                                // console.log(key)
+                                                                // console.log(typeof key)
+                                                                return (
+                                                                    <option key={index} value={key}>
+                                                                        {value}
+                                                                    </option>
+                                                                );
+                                                            })}
+                                                        </select></td>
                                     </tr>
                                 ))}
                             </tbody>

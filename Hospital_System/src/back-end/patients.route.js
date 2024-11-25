@@ -11,7 +11,7 @@ const router = express.Router();
 const adjustDate = (dateString) => {
   if (!dateString) return null; // Return null if date string is empty
   const date = new Date(dateString);
-  date.setDate(date.getDate() + 1); // Add 1 day
+  date.setDate(date.getDate()); // Add 1 day
   return date.toISOString().split("T")[0]; // Return formatted date
 };
 
@@ -20,6 +20,16 @@ const adjustDate = (dateString) => {
 // Define an API endpoint
 router.get('/doctor-list', (req, res) => {
   const sql = 'SELECT * FROM DOCTOR ORDER BY Doc_Code';
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+    res.json(results);
+  });
+});
+
+router.get('/medication-list', (req, res) => {
+  const sql = 'SELECT Med_Code, Med_Name FROM MEDICATION ORDER BY Med_Code';
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err });
@@ -53,13 +63,20 @@ router.get('/patient-search', (req, res) => {
 
 router.get('/patient-detail', (req, res) => {
   const search = `%${req.query.search}%`
-  const sql = ((req.query.search).substring(0,2) == 'IP')? `SELECT * FROM PATIENT p 
+  const sql = ((req.query.search).substring(0,2) == 'IP')? `SELECT p.*, td.*, ip.*, tm.Med_Code FROM PATIENT p 
                INNER JOIN TREATMENT_DETAIL td ON p.Patient_Code = td.IP_Code
                INNER JOIN INPATIENT ip ON p.Patient_Code = ip.IP_Code
+               LEFT JOIN TREATMENT_MED tm ON p.Patient_Code = tm.IP_Code 
+                                            AND td.Doc_Code = tm.Doc_Code 
+                                            AND td.\`Start date\` = tm.\`Start date\` 
+                                            AND td.\`End date\` = tm.\`End date\`
                WHERE p.Patient_Code LIKE ? 
-               ORDER BY Patient_Code` : `SELECT * FROM PATIENT p 
+               ORDER BY Patient_Code` : `SELECT p.*, ed.*, op.*, em.Med_Code FROM PATIENT p 
                INNER JOIN EXAMINATION_DETAIL ed ON p.Patient_Code = ed.OP_Code
                INNER JOIN OUTPATIENT op ON p.Patient_Code = op.OP_Code
+               LEFT JOIN EXAMINATION_MED em ON p.Patient_Code = em.OP_Code
+                                              AND ed.Doc_Code = em.Doc_Code
+                                              AND ed.\`Examination date\` = em.\`Examination date\`
                WHERE p.Patient_Code LIKE ? 
                ORDER BY Patient_Code`;
   db.query(sql, [search], (err, results) => {
