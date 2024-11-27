@@ -133,15 +133,15 @@ router.put('/patient-update', (req, res) => {
         adjustDate(record['new_Examination date'] || record['Examination date'])
       ]
 
-      const finalValues = (updatedPatient.id.substr(0, 2) === "IP") ? 
-        [...values, ...treatment.slice(0, 4), ...newTreatment.slice(0, 3)] : 
-        [...values.slice(0, 6), values[values.length - 1], ...treatment.slice(3), ...newTreatment.slice(2)];
+      console.log(newTreatment, record['new_Med_Code'] || record['Med_Code']);
 
-        console.log(finalValues)
+      const finalValues = (updatedPatient.id.substr(0, 2) === "IP") ? 
+        [...values, ...treatment.slice(0, 4), ...newTreatment.slice(0, 3), record['Med_Code'], record['new_Med_Code'] || record['Med_Code']] : 
+        [...values.slice(0, 6), values[values.length - 1], ...treatment.slice(3), ...newTreatment.slice(2), record['Med_Code'], record['new_Med_Code'] || record['Med_Code']];
 
       const query = (updatedPatient.id.substr(0, 2) === "IP") ? 
-        `CALL update_inpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);` : 
-        `CALL update_outpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        `CALL update_inpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);` : 
+        `CALL update_outpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
       return { query, finalValues };
     };

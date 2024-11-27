@@ -130,13 +130,13 @@ const patients = (props) => {
             ))}
             <tr className="border-b hover:bg-blue-300">
               <td colSpan="1" className="py-2 px-4 underline hover:bg-blue-600 hover:text-red-600 hover:font-semibold hover:bg-opacity-70">
-                <Link to={`/patients/patient?id=${"IP" + findFirstGap(ipPatients)}`}>{"IP" + findFirstGap(ipPatients)}</Link></td>
+                <Link to={`/patients/patient?id=${"IP" + findFirstGap(ipPatients)}&insert=${true}`}>{"IP" + findFirstGap(ipPatients)}</Link></td>
               <td colSpan="5" className='py-2 px-4 font-semibold hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70'>
                 <span>Insert new inpatient</span></td>
             </tr>
             <tr className="border-b hover:bg-blue-300">
               <td colSpan="1" className="py-2 px-4 underline hover:bg-blue-600 hover:text-red-600 hover:font-semibold hover:bg-opacity-70">
-              <Link to={`/patients/patient?id=${"OP" + findFirstGap(opPatients)}`}>{"OP" + findFirstGap(opPatients)}</Link></td>
+              <Link to={`/patients/patient?id=${"OP" + findFirstGap(opPatients)}&insert=${true}`}>{"OP" + findFirstGap(opPatients)}</Link></td>
               <td colSpan="5" className='py-2 px-4 font-semibold hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70'>
                 <span>Insert new outpatient</span></td>
             </tr>

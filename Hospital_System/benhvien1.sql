@@ -440,15 +440,17 @@ CREATE PROCEDURE update_inpatient(
     IN Doc VARCHAR(20),
     IN new_Sdate DATE,
     IN new_Edate DATE,
-    IN new_Doc VARCHAR(20)
+    IN new_Doc VARCHAR(20),
+    IN Med_Code INT,
+    IN new_Med_Code INT
 )
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK; -- Rollback transaction on error
-    END;
+    -- DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    -- BEGIN
+        -- ROLLBACK; -- Rollback transaction on error
+    -- END;
 
-    START TRANSACTION;
+    -- START TRANSACTION;
 
     -- Check if patient record exists, if not insert, otherwise update
     IF (SELECT COUNT(*) FROM patient WHERE Patient_Code = ID) = 0 THEN
@@ -473,15 +475,53 @@ BEGIN
     -- Check if treatment detail exists, if not insert, otherwise update
     IF (SELECT COUNT(*) FROM treatment_detail 
         WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate) = 0 THEN
-        INSERT INTO treatment_detail (IP_Code, Doc_Code, `Start date`, `End date`, Result)
-        VALUES (ID, new_Doc, new_Sdate, new_Edate, new_result);
+		IF (SELECT COUNT(*) FROM treatment_detail 
+			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate) != 0 
+			AND (SELECT COUNT(*) FROM treatment_med 
+			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate AND Med_Code = new_Med_Code) = 0 THEN 
+			INSERT INTO treatment_med (IP_Code, Doc_Code, `Start date`, `End date`, Med_Code)
+			VALUES (ID, new_Doc, new_Sdate, new_Edate, new_Med_Code);
+        ELSE
+			INSERT INTO treatment_detail (IP_Code, Doc_Code, `Start date`, `End date`, Result)
+			VALUES (ID, new_Doc, new_Sdate, new_Edate, new_result);
+            INSERT INTO treatment_med (IP_Code, Doc_Code, `Start date`, `End date`, Med_Code)
+			VALUES (ID, new_Doc, new_Sdate, new_Edate, new_Med_Code);
+		END IF;
     ELSE
-        UPDATE treatment_detail
-        SET Doc_Code = new_Doc, `Start date` = new_Sdate, `End date` = new_Edate, Result = new_result
-        WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate;
+		IF (SELECT COUNT(*) FROM treatment_detail 
+			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate) != 0 THEN
+			UPDATE treatment_med
+			SET Doc_Code = new_Doc, `Start date` = new_Sdate, `End date` = new_Edate, Med_Code = new_Med_Code
+			WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code;
+            
+			IF (SELECT COUNT(*) FROM treatment_med 
+				WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate) = 0 THEN
+				DELETE FROM treatment_detail
+                WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate;
+			END IF;
+                
+		ELSE
+			IF (SELECT COUNT(*) FROM treatment_med 
+				WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate) > 1 THEN
+				INSERT INTO treatment_detail (IP_Code, Doc_Code, `Start date`, `End date`, Result)
+				VALUES (ID, new_Doc, new_Sdate, new_Edate, new_result);
+                
+                UPDATE treatment_med
+				SET Doc_Code = new_Doc, `Start date` = new_Sdate, `End date` = new_Edate, Med_Code = new_Med_Code
+				WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code;
+			ELSE
+				UPDATE treatment_detail
+				SET Doc_Code = new_Doc, `Start date` = new_Sdate, `End date` = new_Edate, Result = new_result
+				WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate;
+				
+				UPDATE treatment_med
+				SET Med_Code = new_Med_Code
+				WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate AND Med_Code = treatment_med.Med_Code;
+            END IF;
+        END IF;
     END IF;
 
-    COMMIT; -- Commit transaction if successful
+    -- COMMIT; -- Commit transaction if successful
 END //
 
 CREATE PROCEDURE update_outpatient(
@@ -498,7 +538,9 @@ CREATE PROCEDURE update_outpatient(
     IN new_fee DECIMAL(10, 2),
     IN Ndate DATE,
     IN new_Doc VARCHAR(20),
-    IN new_Edate DATE
+    IN new_Edate DATE,
+    IN Med_Code INT,
+    IN new_Med_Code INT
 )
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION

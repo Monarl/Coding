@@ -11,6 +11,8 @@ const PatientInfo = (props) => {
 
     const queryParams = new URLSearchParams(location.search); // Read query parameters
     const patientId = queryParams.get('id');
+    let inserted = queryParams.get('insert')
+
     const inPatient = patientId.substring(0, 2) === "IP";
     const today = new Date();
 
@@ -39,6 +41,15 @@ const PatientInfo = (props) => {
         today.getMonth(),
         today.getDate() + 1
     ).toISOString().split("T")[0];
+
+    function getRandomDateInLastTwoYears() {
+        const now = new Date();
+        const twoYearsAgo = new Date();
+        twoYearsAgo.setFullYear(now.getFullYear() - 2);
+        
+        const randomTimestamp = Math.random() * (now.getTime() - twoYearsAgo.getTime()) + twoYearsAgo.getTime();
+        return new Date(randomTimestamp);
+    }
     
     const [patients, setPatients] = useState([]);
     const [doctors, setDoctors] = useState([]);
@@ -140,6 +151,7 @@ const PatientInfo = (props) => {
                 const mergedMeds = dataMedications.map(med => ({[med.Med_Code] : `${med.Med_Code}: ${med.Med_Name}`}));
                 console.log(mergedMeds);
                 setMedications(mergedMeds);
+                if(inserted && patients.length == 0) addRecord()
 
             } catch (error) {
                 console.error('Failed to fetch patient data:', error);
@@ -161,7 +173,7 @@ const PatientInfo = (props) => {
 
     const handleTable = (e, index) => {
         let { name, value } = e.target;
-        console.log(name, value, index);
+        //console.log(name, value, index);
         setPatients((prevPatients) => {
             const updatedPatients = [...prevPatients];
             // Update the specific field of the patient at the given index
@@ -169,13 +181,14 @@ const PatientInfo = (props) => {
                 ...updatedPatients[index],
                 ["new_" + name]: value
             }
-            //console.log(updatedPatients[index]);
+            console.log(updatedPatients[index]);
             return updatedPatients
         })
     }
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        console.log(patients)
         fetch(`http://localhost:8000/patients/patient-update`, {
             method: 'PUT',
             headers: {
@@ -188,6 +201,7 @@ const PatientInfo = (props) => {
             throw new Error('Network response was not ok');
           }
           setEdited(!edited)
+          //if(inserted) navigate('/patients')
           window.location.reload();
         })
       };
@@ -195,27 +209,34 @@ const PatientInfo = (props) => {
       const addRecord = () => {
         // Define a new patient object (customize as needed)
         const newPatient = {
-          Patient_Code: patientId,
-          'Start date': new Date(),
-          'End date': new Date(),
-          Doc_Code: 'D001',
-          'Result': "Fine",
-          'Diagnosis': 'Flu',
-          'Fee': 10,
-          'Examination date': new Date(),
-          'Next_examination': new Date(),
-          'Med_Code': 1
+            Patient_Code: patientId,
+            'Start date': getRandomDateInLastTwoYears(),
+            'End date': getRandomDateInLastTwoYears(),
+            Doc_Code: 'D001',
+            'Result': "Fine",
+            'Diagnosis': 'Flu',
+            'Fee': 10,
+            'Examination date': getRandomDateInLastTwoYears(),
+            'Next_examination': getRandomDateInLastTwoYears(),
+            'Med_Code': 1
         };
     
         // Update state by adding the new object to the existing array
         setPatients([...patients, newPatient]);
       };
 
+
       const adjustDate = (dateString) => {
         if (!dateString) return null; // Return null if date string is empty
         const date = new Date(dateString);
         date.setDate(date.getDate() + 1); // Add 1 day
         return date.toISOString().split("T")[0]; // Return formatted date
+      };
+
+      const handleInvalid = (e) => {
+        e.target.setCustomValidity(
+          'Please enter a valid phone number with 10 numbers.'
+        );
       };
 
     return (
@@ -277,7 +298,10 @@ const PatientInfo = (props) => {
                         <div className='col-span-6'>
                             <span>+ Phone number: </span>
                             <input
+                                type='tel'
                                 name="Phone_num"
+                                pattern="[0-9]{10}"
+                                onInvalid={handleInvalid}
                                 value={patientData.Phone_num}
                                 onChange={handleChange}
                                 disabled={edited}
@@ -332,6 +356,7 @@ const PatientInfo = (props) => {
                             <div className='md:col-span-3 col-span-6'>
                             <span>+ Fee: </span>
                             <input
+                                type='number'
                                 name="Fee"
                                 value={patientData.Fee}
                                 onChange={handleChange}
