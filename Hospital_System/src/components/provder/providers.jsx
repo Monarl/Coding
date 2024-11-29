@@ -33,7 +33,7 @@ const Providers = (props)=>{
         getData();
     }, []);
 
-    const getData = () => {                       //fetching data from database
+    const getData = () => {                       //get all providers from database
         fetch('http://localhost:8000/providers/getProviders').then((response) => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');

@@ -10,6 +10,9 @@ const Provider_info = (props)=>{
     const location = useLocation(); // For taking query parameters
     const [disableEdit, setDisableEdit] = useState(true); // To allow edit form; True: not allowed to edit
     const [providers, setProviders] = useState([]);
+    const [medications, setMedications] = useState([]);        // list of all med
+    const [allMedProvide, setAllMedProvide] = useState([]);        // list of all med of this provider
+    const [iniMedProvides, setIniMedProvides] = useState([]);        // list of all med for handling changes
 
     const queryParams = new URLSearchParams(location.search); // Read query parameters
     const Provider_num = queryParams.get('id');
@@ -49,11 +52,46 @@ const Provider_info = (props)=>{
         }
     };
 
+    const getMedication = () => {                       //get all medications from database
+        fetch('http://localhost:8000/medications/getMed').then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then((data) => {
+            console.log(data)
+            setMedications(data); // Store the fetched data in state
+        }).catch((error) => {
+            setError(error.message); // Catch and display any errors
+        }); 
+    }
+
+    const getMedProvide = async () =>{        //get the med of this provider
+        try { const response = await fetch(`http://localhost:8000/providers/medOfProvider?Provider_num=${Provider_num}`,{
+            method:'GET',
+            headers:{
+                'Content-Type': 'application/json'
+            },
+        }); 
+            if (!response.ok) {
+                throw new Error('Network response was not ok'); 
+            }
+            const data = await response.json();
+            console.log(data);
+            setAllMedProvide(data);
+            setIniMedProvides(data);
+        }
+        catch (error) { 
+            setError(error.message); 
+        }
+    }
+
+
     useEffect(() => {
         getproviders();
+        getMedication();
+        getMedProvide();
     }, []);
-
-    
 
     //#endregion
     
@@ -66,7 +104,7 @@ const Provider_info = (props)=>{
         const Phone = formData.get('new_Phone') ? formData.get('new_Phone') : providers[0].Phone;
         const Address = formData.get('new_Address')? formData.get('new_Address'): providers[0].Address;
         const payLoad = { P_Name, Phone, Address, Provider_num};
-        console.log(payLoad);
+        await handleTable();
         try{
             const response = await fetch('http://localhost:8000/providers/update',{
                 method:'PUT',
@@ -93,8 +131,28 @@ const Provider_info = (props)=>{
         const confirm = window.confirm ("Are you sure to delete this provider?")
         if (!confirm) return;
 
+        
         const payLoad = {Provider_num};
-        try{
+        try{                                                    //delete the relationship
+            const response = await fetch ('http://localhost:8000/providers/deleteRelationship',{
+                method:'DELETE',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Provide relation deleted successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to delete provide relation:', errorData);
+                alert("Provide relation deleted Fail");
+            }
+        }catch(err){
+            setError(err.message);
+        }
+        try{                                                    //delete the entity itself
             const response = await fetch ('http://localhost:8000/providers/delete',{
                 method:'DELETE',
                 headers:{
@@ -114,6 +172,65 @@ const Provider_info = (props)=>{
         }catch(err){
             setError(err.message);
         }
+    }
+
+    const handleCheckbox = (checked, Med_code) =>{    //handle changes when checking check box
+        if (checked){
+            if (!allMedProvide.some( medProvide => medProvide.Med_code === Med_code))   //if tem list dont have the item got checked then add it
+                setAllMedProvide([...allMedProvide, {Med_code: Med_code}]);
+        } else{
+            if (allMedProvide.some( medProvide => medProvide.Med_code === Med_code))   //if tem list have the item got unchecked then delete it
+                setAllMedProvide(allMedProvide.filter(med => med.Med_code !== Med_code));
+        }
+        console.log(allMedProvide);
+    }
+
+    const handleTable = async() =>{ //handle changes in the relation  ship of med and providers
+        const addList = allMedProvide.filter(item => !iniMedProvides.includes(item));           //list of row need to add into the database (in tem list but not in initial list)
+        const deleteList = iniMedProvides.filter(item => !allMedProvide.includes(item));        //list of row need to delete into the database (in initial list but not tem list)
+        if ( addList.length != 0) try{
+            const payLoad = addList.map(medProvide => [medProvide.Med_code,Provider_num])
+            const response = await fetch('http://localhost:8000/medications/addListProvider',{               //adding 
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Provide relation add successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to add Provide relation:', errorData);
+                alert("Provide relation add Fail");
+            }
+        } catch (err){
+            setError(err.message);
+        }
+
+        if (deleteList.length != 0) try{
+            const payLoad = deleteList.map(medProvide => [medProvide.Med_code,Provider_num])
+            console.log("payload:",payLoad);
+            const response = await fetch('http://localhost:8000/medications/deleteListProvider',{               //deleting 
+                method:'DELETE',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Provide relation delete successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to delete Provide relation:', errorData);
+                alert("Provide relation delete Fail");
+            }
+        } catch (err){
+            setError(err.message);
+        }
+
     }
 
     //#endregion
@@ -188,6 +305,56 @@ const Provider_info = (props)=>{
     );  
     }
 
+    const MedTable = () => {
+        return (
+            <div className='justify-center flex'> {/* Med Table design */}
+                    <div className="overflow-x-auto p-3 w-5/6">
+                        <h1 className="text-2xl font-bold my-4">Medications</h1>
+
+                        <table className="table-auto text-lg min-w-full bg-white border border-gray-300">
+                            <thead className="bg-gray-100 border-b">
+                                <tr className='*:py-2 *:px-4 *:text-center *:border-x-2 *:font-semibold *:text-gray-700 '>
+                                    <th className="">Medication Code</th>
+                                    <th className="">Medication Name</th>
+                                    <th className="">Price</th>
+                                    <th className="">Expiration Date</th>
+                                    <th className="">Effects</th>
+                                    {disableEdit ? "": <th className="">Include</th>}
+                                </tr>
+                            </thead>
+                            {disableEdit ? 
+                            <tbody>
+                            {medications.map((medication,index)=> allMedProvide.some( medProvide => medProvide.Med_code === medication.Med_Code) ? 
+                                <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
+                                        <td className="">{medication.Med_Code}</td>
+                                        <td className="">{medication.Med_Name}</td>
+                                        <td className="">{medication.Price}</td>
+                                        <td className="">{new Date(medication.Expiration_date).toISOString().split("T")[0]}</td>
+                                        <td className=""> {medication.Effects}</td>
+                                </tr>
+                            : "")}
+                            </tbody>:<tbody>
+                            {medications.map((medication,index)=>
+                                <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
+                                        <td className="">{medication.Med_Code}</td>
+                                        <td className="">{medication.Med_Name}</td>
+                                        <td className="">{medication.Price}</td>
+                                        <td className="">{new Date(medication.Expiration_date).toISOString().split("T")[0]}</td>
+                                        <td className=""> {medication.Effects}</td>
+                                        <td className=""> 
+                                            <input className='h-6 w-6 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-50' 
+                                            type='checkbox'
+                                            onChange={ (e) =>handleCheckbox(e.currentTarget.checked, medication.Med_Code)}
+                                            defaultChecked = {allMedProvide.some( medProvide => medProvide.Med_code === medication.Med_Code)}
+                                            /></td>
+                                </tr>
+                            )}</tbody>}
+                        </table>
+                    </div>
+                </div>
+        );
+    }
+
     //#endregion
 
     return(
@@ -203,6 +370,7 @@ const Provider_info = (props)=>{
                     <DeleteButton/>
                     <SpacesForMedInfo/>
                 </div>
+                <MedTable/>
                 <div className='w-full flex justify-center'>
                     {(disableEdit)? "" : <button className='col-span-1 col-start-5 m-5 p-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'
                         type = 'submit'>

@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import {db} from "./index.js"
 
 // Load environment variables
-dotenv.config({ path: 'C:/Users/AORUS/source/repos/Database_blt/Coding/Hospital_System/Login_secret_key.env' });
+dotenv.config({ path: 'C:/Users/AORUS/source/repos/BTL_DB/Coding/Hospital_System/Login_secret_key.env' });
 
 const router = express.Router();
 
@@ -75,5 +75,30 @@ router.delete('/delete', (req, res) => {
     });
 });
 
+router.get('/medOfProvider', (req, res) => {                                         //for getting the providers of a med
+    const sql = 'SELECT provide.Med_code FROM provide WHERE Provider_num = ?';
+    const Provider_num = req.query.Provider_num;
+    db.query(sql, [Provider_num] ,(err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err });
+        }
+        res.json(results);
+    });
+});
+
+router.delete('/deleteRelationship', (req, res) => {
+    const { Provider_num } = req.body;
+    console.log(req.body);
+    const deleteQuery = 'DELETE FROM provide where Provider_num = ?';
+    db.query(deleteQuery, [Provider_num], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        } else {
+            res.status(201).json(result);
+            console.log(result);
+        }
+    });
+});
 
 export default router;
