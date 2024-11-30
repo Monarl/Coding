@@ -42,19 +42,20 @@ const patients = (props) => {
 
 
   const findFirstGap = (arr) => {    
-    // Iterate through the array and check for gaps
+    if (!Array.isArray(arr) || arr.length === 0) {
+        return String(0).padStart(9, '0'); // Return '000000000' for empty or invalid input
+    }
+    if (arr[0] !== 0) return String(0).padStart(9, '0'); // Gap at the start
+
     for (let i = 0; i < arr.length - 1; i++) {
-        // Calculate the expected next number
         const nextExpected = arr[i] + 1;
-        
-        // If the next number is not the same as the expected number, return the gap
         if (arr[i + 1] !== nextExpected) {
-          return String(nextExpected).padStart(9, '0'); // Found a gap
+            return String(nextExpected).padStart(9, '0'); // Return first gap
         }
     }
+    return String(arr.length).padStart(9, '0'); // No gap, return next in sequence
+};
 
-    return String(arr.length).padStart(9, '0'); 
-}
 
   const getMedication = () => {
     fetch('http://localhost:8000/patients/test')

@@ -28,6 +28,16 @@ router.get('/doctor-list', (req, res) => {
   });
 });
 
+router.get('/nurse-list', (req, res) => {
+  const sql = 'SELECT * FROM NURSE ORDER BY Nurse_Code';
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+    res.json(results);
+  });
+});
+
 router.get('/medication-list', (req, res) => {
   const sql = 'SELECT Med_Code, Med_Name FROM MEDICATION ORDER BY Med_Code';
   db.query(sql, (err, results) => {
@@ -87,6 +97,30 @@ router.get('/patient-detail', (req, res) => {
   });
 });
 
+router.delete('/delete-records', (req, res) => {
+  const { patient } = req.body;
+  console.log(patient)
+
+  const inpatient = [
+    patient.Patient_Code,
+    patient["Start date"],
+    patient["End date"],
+    patient.Doc_Code,
+    patient.Med_Code
+  ]
+
+  const sql = ((patient.Patient_Code).substring(0,2) == 'IP')? `CALL delete_records_inpatient(?, ?, ?, ?, ?)` 
+                                                         : `CALL delete_records_outpatient(?, ?, ?, ?)`
+  db.query(sql, inpatient, (err, result) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ error: 'Database query failed.' });
+    }
+
+    console.log('Query result:', result);
+    return res.sendStatus(200); // Respond with success
+  });
+});
 router.put('/patient-update', (req, res) => {
   const updatedPatient = req.body.patientData;
   const patient_records = req.body.patients;
@@ -133,16 +167,16 @@ router.put('/patient-update', (req, res) => {
         adjustDate(record['new_Examination date'] || record['Examination date'])
       ]
 
-      console.log(newTreatment, record['new_Med_Code'] || record['Med_Code']);
+      //console.log(newTreatment, record['new_Med_Code'] || record['Med_Code']);
 
       const finalValues = (updatedPatient.id.substr(0, 2) === "IP") ? 
         [...values, ...treatment.slice(0, 4), ...newTreatment.slice(0, 3), record['Med_Code'], record['new_Med_Code'] || record['Med_Code']] : 
         [...values.slice(0, 6), values[values.length - 1], ...treatment.slice(3), ...newTreatment.slice(2), record['Med_Code'], record['new_Med_Code'] || record['Med_Code']];
 
+      console.log(finalValues) 
       const query = (updatedPatient.id.substr(0, 2) === "IP") ? 
         `CALL update_inpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);` : 
         `CALL update_outpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-
       return { query, finalValues };
     };
 

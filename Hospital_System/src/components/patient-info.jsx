@@ -42,17 +42,18 @@ const PatientInfo = (props) => {
         today.getDate() + 1
     ).toISOString().split("T")[0];
 
-    function getRandomDateInLastTwoYears() {
-        const now = new Date();
-        const twoYearsAgo = new Date();
-        twoYearsAgo.setFullYear(now.getFullYear() - 2);
+    // function getRandomDateInLastTwoYears() {
+    //     const now = new Date();
+    //     const twoYearsAgo = new Date();
+    //     twoYearsAgo.setFullYear(now.getFullYear() - 2);
         
-        const randomTimestamp = Math.random() * (now.getTime() - twoYearsAgo.getTime()) + twoYearsAgo.getTime();
-        return new Date(randomTimestamp);
-    }
+    //     const randomTimestamp = Math.random() * (now.getTime() - twoYearsAgo.getTime()) + twoYearsAgo.getTime();
+    //     return new Date(randomTimestamp);
+    // }
     
     const [patients, setPatients] = useState([]);
     const [doctors, setDoctors] = useState([]);
+    const [nurses, setNurses] = useState([]);
     const [medications, setMedications] = useState([]);
     const [patientData, setPatientData] = useState({
         F_name: '',
@@ -143,6 +144,15 @@ const PatientInfo = (props) => {
                 //console.log(dataDoctors);
                 setDoctors(dataDoctors);
 
+                const responseNurses = await fetch(`http://localhost:8000/patients/nurse-list`);
+                if (!responseNurses.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const dataNurses = await responseNurses.json();
+                //console.log(dataNurses);
+                setNurses(dataNurses);
+
+
                 const responseMedications = await fetch(`http://localhost:8000/patients/medication-list`);
                 if (!responseMedications.ok) {
                     throw new Error('Network response was not ok');
@@ -186,6 +196,32 @@ const PatientInfo = (props) => {
         })
     }
 
+    //Handle patient record deletion
+    const handleDelete = async (index) => {
+        try {
+          const patientToDelete = patients[index]; // Extract the specific patient data
+      
+          const response = await fetch(`http://localhost:8000/patients/delete-records`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ patient: patientToDelete }), // Send the patient data to the backend
+          });
+      
+          if (response.ok) {
+            // Remove the patient from the state
+            setPatients((prevPatients) => prevPatients.filter((_, i) => i !== index));
+          } else {
+            console.error('Failed to delete the patient record.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+
+    
+
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(patients)
@@ -201,7 +237,7 @@ const PatientInfo = (props) => {
             throw new Error('Network response was not ok');
           }
           setEdited(!edited)
-          //if(inserted) navigate('/patients')
+          if(inserted) navigate('/patients')
           window.location.reload();
         })
       };
@@ -210,14 +246,14 @@ const PatientInfo = (props) => {
         // Define a new patient object (customize as needed)
         const newPatient = {
             Patient_Code: patientId,
-            'Start date': getRandomDateInLastTwoYears(),
-            'End date': getRandomDateInLastTwoYears(),
+            'Start date': null,
+            'End date': null,
             Doc_Code: 'D001',
             'Result': "Fine",
             'Diagnosis': 'Flu',
             'Fee': 10,
-            'Examination date': getRandomDateInLastTwoYears(),
-            'Next_examination': getRandomDateInLastTwoYears(),
+            'Examination date': null,
+            'Next_examination': null,
             'Med_Code': 1
         };
     
@@ -249,41 +285,61 @@ const PatientInfo = (props) => {
                     <h1 className='text-4xl font-bold col-span-6 text-center m-4 mb-10 p-4 shadow-slate-700 shadow-sm'>
                         PATIENT {patientId}
                     </h1>
-                    <button type='button' onClick={() => setEdited(!edited)} className='col-span-1 col-start-2 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Edit ✏️</button>
-                    <button type='button' className='col-span-1 col-start-5 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Delete 🗑️</button>
+                    <button type='button' onClick={() => setEdited(!edited)} className='col-span-2 col-start-3 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Edit ✏️</button>
+                    {/* <button type='button' className='col-span-1 col-start-5 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Delete 🗑️</button> */}
                     <div className='grid grid-cols-6 gap-y-5 mb-4 col-span-6'>
                         <div className='md:col-span-3 col-span-6'>
-                            <span>+ First Name: </span>
+                            <span>+ First Name: {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}</span>
                             <input
                                 name="F_name"
                                 value={patientData.F_name}
                                 onChange={handleChange}
                                 disabled={edited}
+                                required={!edited}
                                 className='bg-slate-100 rounded-2xl px-2'
                             />
                         </div>
                         <div className='md:col-span-3 col-span-6'>
-                            <span>+ Last Name: </span>
+                            <span>+ Last Name: {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}</span>
                             <input
                                 name="L_name"
                                 value={patientData.L_name}
                                 onChange={handleChange}
                                 disabled={edited}
+                                required={!edited}
                                 className='bg-slate-100 rounded-2xl px-2'
                             />
                         </div>
                         <div className='md:col-span-3 col-span-6'>
-                            <span>+ Gender: </span>
-                            <input
-                                name="Gender"
-                                value={patientData.Gender}
-                                onChange={handleChange}
-                                disabled={edited}
-                                className='bg-slate-100 rounded-2xl px-2'
-                            />
+                        <span>
+                            + Gender: 
+                            {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}
+                        </span>
+                        <select
+                            name="Gender"
+                            value={patientData.Gender}
+                            onChange={handleChange}
+                            disabled={edited}
+                            required={!edited}
+                            className='bg-slate-100 rounded-2xl px-2 disabled:bg-white'
+                        >
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Others">Others</option>
+                        </select>
                         </div>
+
                         <div className='md:col-span-3 col-span-6'>
-                            <span>+ Date of Birth: </span>
+                            <span>+ Date of Birth: {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}</span>
                             <input
                                 type='date'
                                 name="Dob"
@@ -292,6 +348,7 @@ const PatientInfo = (props) => {
                                 min={oldAge}
                                 onChange={handleChange}
                                 disabled={edited}
+                                required={!edited}
                                 className='bg-slate-100 rounded-2xl px-2'
                             />
                         </div>
@@ -322,45 +379,57 @@ const PatientInfo = (props) => {
                         {(inPatient) ? (
                         <div className='grid grid-cols-6 col-span-6 gap-y-5'>
                             <div className='md:col-span-3 col-span-6'>
-                                <span>+ Date of Admission: </span>
+                                <span>+ Date of Admission: {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}</span>
                                 <input
                                     type='date'
                                     name="Dateofadmission"
                                     value={patientData.Dateofadmission ? new Date(patientData.Dateofadmission).toISOString().split("T")[0] : ''}
                                     onChange={handleChange}
                                     disabled={edited}
+                                    required={!edited}
                                     className='bg-slate-100 rounded-2xl px-2 w-1/2'
                                 />
                             </div>
                             <div className='md:col-span-3 col-span-6'>
-                            <span>+ Date of Discharge: </span>
+                            <span>+ Date of Discharge: {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}</span>
                             <input
                                 type='date'
                                 name="Dateofdischarge"
                                 value={patientData.Dateofdischarge ? new Date(patientData.Dateofdischarge).toISOString().split("T")[0] : ''}
                                 onChange={handleChange}
                                 disabled={edited}
+                                required={!edited}
                                 className='bg-slate-100 rounded-2xl px-2 w-1/2'
                             />
                             </div>
                             <div className='md:col-span-3 col-span-6'>
-                            <span>+ Diagnosis: </span>
+                            <span>+ Diagnosis: {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}</span>
                             <input
                                 name="Diagnosis"
                                 value={patientData.Diagnosis}
                                 onChange={handleChange}
                                 disabled={edited}
+                                required={!edited}
                                 className='bg-slate-100 rounded-2xl px-2'
                             />
                             </div>
                             <div className='md:col-span-3 col-span-6'>
-                            <span>+ Fee: </span>
+                            <span>+ Fee: {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}</span>
                             <input
                                 type='number'
                                 name="Fee"
                                 value={patientData.Fee}
                                 onChange={handleChange}
                                 disabled={edited}
+                                required={!edited}
                                 className='bg-slate-100 rounded-2xl px-2'
                             />
                             </div>
@@ -375,14 +444,25 @@ const PatientInfo = (props) => {
                             />
                             </div>
                             <div className='md:col-span-3 col-span-6'>
-                            <span>+ Nurse Code: </span>
-                            <input
+                            <span>+ Nurse Code: {edited === false && (
+                                <span style={{ color: 'red' }}>* </span>
+                            )}</span>
+                            
+                            <select
                                 name="Nurse_Code"
-                                value={patientData.Nurse_Code}
+                                value={patientData.Nurse_Code || ''} // Default to an empty string if no value
                                 onChange={handleChange}
                                 disabled={edited}
-                                className='bg-slate-100 rounded-2xl px-2'
-                            />
+                                required={!edited}
+                                className='bg-slate-100 rounded-2xl px-2 disabled:bg-white'
+                            >
+                                <option value="" disabled>Select a nurse</option> {/* Placeholder option */}
+                                {nurses.map((nurse) => (
+                                <option key={nurse.Nurse_Code} value={nurse.Nurse_Code}>
+                                    {nurse.Nurse_Code}
+                                </option>
+                                ))}
+                            </select>
                             </div>
                         </div>
                         ) : ""}
@@ -396,11 +476,22 @@ const PatientInfo = (props) => {
                         <table className="table-auto text-lg min-w-full bg-white border border-gray-300">
                             <thead className="bg-gray-100 border-b">
                                 <tr className='*:py-2 *:px-4 *:text-center *:border-x-2 *:font-semibold *:text-gray-700 '>
+                                    {(!edited) ? <th className=""></th> : ""}
                                     <th className="">Doc_Code</th>
                                     <th className="">Patient_Code</th>
-                                    <th className="">{(inPatient) ? "Start date" : "Examination Date"}</th>
-                                    <th className="">{(inPatient) ? "End date" : "Diagnosis"}</th>
-                                    <th className="">{(inPatient) ? "Result" : "Fee"}</th>
+                                    <th className="">{(inPatient) ? "Start date" : "Examination Date"}
+                                        {edited === false && (
+                                        <span style={{ color: 'red' }}> *</span>
+                                    )}</th>
+                                    <th className="">{(inPatient) ? "End date" : "Diagnosis"}
+                                        {edited === false && (
+                                        <span style={{ color: 'red' }}>*</span>
+                                        )}
+                                    </th>
+                                    <th className="">{(inPatient) ? "Result" : "Fee"}
+                                        {edited === false && (
+                                        <span style={{ color: 'red' }}>*</span>
+                                    )}</th>
                                     {(!inPatient) ? <th className="">Next_examination</th> : ""}
                                     <th className="">Med_Code</th>
                                 </tr>
@@ -409,6 +500,7 @@ const PatientInfo = (props) => {
                             <tbody>
                                 {patients.map((patient, index) => (
                                     <tr key={index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
+                                        {(!edited) ? <td className=""><button type='button' onClick={() => handleDelete(index)}>🗑️</button></td> : ""}
                                         <td className=""><select 
                                                             name="Doc_Code" 
                                                             disabled={edited}
@@ -428,17 +520,19 @@ const PatientInfo = (props) => {
                                             <input
                                                 type='date'
                                                 name="Start date"
-                                                value={patient["Start date"] ? new Date(patient['new_Start date'] || patient["Start date"]).toISOString().split("T")[0] : ''}
+                                                value={patient["Start date"] || patient["new_Start date"] ? new Date(patient['new_Start date'] || patient["Start date"]).toISOString().split("T")[0] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
+                                                required={!edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
                                             />) : (
                                             <input
                                                 type='date'
                                                 name="Examination date"
-                                                value={patient["Examination date"] ? new Date(patient["new_Examination date"] || patient["Examination date"]).toISOString().split("T")[0] : ''}
+                                                value={patient["Examination date"] || patient["new_Examination date"] ? new Date(patient["new_Examination date"] || patient["Examination date"]).toISOString().split("T")[0] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
+                                                required={!edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
                                                 />)}</td>
 
@@ -446,9 +540,10 @@ const PatientInfo = (props) => {
                                             <input
                                                 type='date'
                                                 name="End date"
-                                                value={patient["End date"] ? new Date(patient["new_End date"] || patient["End date"]).toISOString().split("T")[0] : ''}
+                                                value={patient["End date"] || patient["new_End date"] ? new Date(patient["new_End date"] || patient["End date"]).toISOString().split("T")[0] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
+                                                required={!edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
                                             />) : (
                                             <input
@@ -456,6 +551,7 @@ const PatientInfo = (props) => {
                                                 value={patient["Diagnosis"] ? patient["new_Diagnosis"] ?? patient["Diagnosis"] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
+                                                required={!edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
                                                 />)}</td>
 
@@ -465,6 +561,7 @@ const PatientInfo = (props) => {
                                                 value={patient["Result"] ? patient["new_Result"] ?? patient["Result"] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
+                                                required={!edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
                                             />) : (
                                             <input
@@ -472,6 +569,7 @@ const PatientInfo = (props) => {
                                                 value={patient["Fee"] ? patient["new_Fee"] ?? patient["Fee"] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
+                                                required={!edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
                                                 />)}</td>
 
@@ -479,7 +577,7 @@ const PatientInfo = (props) => {
                                             <input
                                                 type='date'
                                                 name="Next_examination"
-                                                value={patient["Next_examination"] ? new Date(patient["new_Next_examination"] || patient["Next_examination"]).toISOString().split("T")[0] : ''}
+                                                value={patient["Next_examination"] || patient["new_Next_examination"] ? new Date(patient["new_Next_examination"] || patient["Next_examination"]).toISOString().split("T")[0] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"

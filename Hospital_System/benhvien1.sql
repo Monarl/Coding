@@ -445,12 +445,12 @@ CREATE PROCEDURE update_inpatient(
     IN new_Med_Code INT
 )
 BEGIN
-    -- DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    -- BEGIN
-        -- ROLLBACK; -- Rollback transaction on error
-    -- END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK; -- Rollback transaction on error
+    END;
 
-    -- START TRANSACTION;
+    START TRANSACTION;
 
     -- Check if patient record exists, if not insert, otherwise update
     IF (SELECT COUNT(*) FROM patient WHERE Patient_Code = ID) = 0 THEN
@@ -493,6 +493,9 @@ BEGIN
 			UPDATE treatment_med
 			SET Doc_Code = new_Doc, `Start date` = new_Sdate, `End date` = new_Edate, Med_Code = new_Med_Code
 			WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code;
+            UPDATE treatment_detail
+			SET Result = new_result
+			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate;
             
 			IF (SELECT COUNT(*) FROM treatment_med 
 				WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate) = 0 THEN
@@ -521,7 +524,7 @@ BEGIN
         END IF;
     END IF;
 
-    -- COMMIT; -- Commit transaction if successful
+    COMMIT; -- Commit transaction if successful
 END //
 
 CREATE PROCEDURE update_outpatient(
@@ -560,17 +563,130 @@ BEGIN
         WHERE Patient_Code = ID;
     END IF;
     
+    -- Check if inpatient record exists, if not insert, otherwise update
+    IF (SELECT COUNT(*) FROM outpatient WHERE OP_Code = ID) = 0 THEN
+        INSERT INTO outpatient (OP_Code)
+        VALUES (ID);
+    END IF;
+    
     -- Check if examination_detail record exists, if not insert, otherwise update
-    IF (SELECT COUNT(*) FROM examination_detail WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate) = 0 THEN
-        INSERT INTO examination_detail (OP_Code, Doc_Code, `Examination date`, Diagnosis, Fee, Next_examination)
-        VALUES (ID, new_Doc, new_Edate, new_diagnosis, new_fee, Ndate);
+    IF (SELECT COUNT(*) FROM examination_detail 
+        WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate) = 0 THEN
+		IF (SELECT COUNT(*) FROM examination_detail 
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate) != 0 
+			AND (SELECT COUNT(*) FROM examination_med 
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate AND Med_Code = new_Med_Code) = 0 THEN 
+			INSERT INTO examination_med (OP_Code, Doc_Code, `Examination date`, Med_Code)
+			VALUES (ID, new_Doc, new_Edate, new_Med_Code);
+        ELSE
+			INSERT INTO examination_detail (OP_Code, Doc_Code, `Examination date`, Diagnosis, Fee, Next_examination)
+			VALUES (ID, new_Doc, new_Edate, new_diagnosis, new_fee, Ndate);
+            INSERT INTO examination_med (OP_Code, Doc_Code, `Examination date`, Med_Code)
+			VALUES (ID, new_Doc, new_Edate, new_Med_Code);
+		END IF;
     ELSE
-        UPDATE examination_detail
-        SET Doc_Code = new_Doc, `Examination date` = new_Edate, Diagnosis = new_diagnosis, Fee = new_fee, Next_examination = Ndate
-        WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+		IF (SELECT COUNT(*) FROM examination_detail 
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate) != 0 THEN
+			UPDATE examination_med
+			SET Doc_Code = new_Doc, `Examination date` = new_Edate, Med_Code = new_Med_Code
+			WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
+            UPDATE examination_detail
+			SET Diagnosis = new_diagnosis, Fee = new_fee, Next_examination = Ndate
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate;
+            
+			IF (SELECT COUNT(*) FROM examination_med 
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate) = 0 THEN
+				DELETE FROM examination_detail
+                WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+			END IF;
+                
+		ELSE
+			IF (SELECT COUNT(*) FROM examination_med 
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `Examination date` = Edate) > 1 THEN
+				INSERT INTO examination_detail (OP_Code, Doc_Code, `Examination date`, Diagnosis, Fee, Next_examination)
+				VALUES (ID, new_Doc, new_Edate, new_diagnosis, new_fee, Ndate);
+                
+                UPDATE examination_med
+				SET Doc_Code = new_Doc, `Examination date` = new_Edate, Med_Code = new_Med_Code
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
+			ELSE
+				UPDATE examination_detail
+				SET Doc_Code = new_Doc, `Examination date` = new_Edate, Diagnosis = new_diagnosis, Fee = new_fee, Next_examination = Ndate
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+				
+				UPDATE examination_med
+				SET Med_Code = new_Med_Code
+				WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate AND Med_Code = examination_med.Med_Code;
+            END IF;
+        END IF;
     END IF;
 
     COMMIT; -- Commit transaction if successful
+END //
+
+CREATE PROCEDURE delete_records_inpatient(
+	IN ID VARCHAR(20),
+    IN Sdate DATE,
+    IN Edate DATE,
+    IN Doc VARCHAR(20),
+    IN Med_Code INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK; -- Rollback transaction on error
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'An error occurred during the deletion.';
+    END;
+
+    START TRANSACTION;
+    
+    IF (SELECT COUNT(*) FROM treatment_med 
+		WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code) > 0 THEN
+        DELETE FROM treatment_med
+		WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code;
+        
+        IF (SELECT COUNT(*) FROM treatment_med 
+			WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code) = 0 THEN
+			DELETE FROM treatment_detail
+			WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate;
+            
+		END IF;
+	END IF;
+    
+COMMIT; -- Commit transaction if successful
+END //
+
+CREATE PROCEDURE delete_records_outpatient(
+	IN ID VARCHAR(20),
+    IN Edate DATE,
+    IN Doc VARCHAR(20),
+    IN Med_Code INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK; -- Rollback transaction on error
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'An error occurred during the deletion.';
+    END;
+
+    START TRANSACTION;
+    
+    IF (SELECT COUNT(*) FROM examination_med 
+		WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code) > 0 THEN
+        DELETE FROM examination_med
+		WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
+        
+        IF (SELECT COUNT(*) FROM examination_med 
+			WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code) = 0 THEN
+			DELETE FROM examination_detail
+			WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+            
+		END IF;
+	END IF;
+    
+COMMIT; -- Commit transaction if successful
 END //
 
 DELIMITER ;
