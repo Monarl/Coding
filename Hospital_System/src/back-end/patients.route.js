@@ -74,7 +74,7 @@ router.get('/patient-search', (req, res) => {
 router.get('/patient-detail', (req, res) => {
   const search = `%${req.query.search}%`
   const sql = ((req.query.search).substring(0,2) == 'IP')? `SELECT p.*, td.*, ip.*, tm.Med_Code FROM PATIENT p 
-               INNER JOIN TREATMENT_DETAIL td ON p.Patient_Code = td.IP_Code
+               LEFT JOIN TREATMENT_DETAIL td ON p.Patient_Code = td.IP_Code
                INNER JOIN INPATIENT ip ON p.Patient_Code = ip.IP_Code
                LEFT JOIN TREATMENT_MED tm ON p.Patient_Code = tm.IP_Code 
                                             AND td.Doc_Code = tm.Doc_Code 
@@ -82,7 +82,7 @@ router.get('/patient-detail', (req, res) => {
                                             AND td.\`End date\` = tm.\`End date\`
                WHERE p.Patient_Code LIKE ? 
                ORDER BY Patient_Code` : `SELECT p.*, ed.*, op.*, em.Med_Code FROM PATIENT p 
-               INNER JOIN EXAMINATION_DETAIL ed ON p.Patient_Code = ed.OP_Code
+               LEFT JOIN EXAMINATION_DETAIL ed ON p.Patient_Code = ed.OP_Code
                INNER JOIN OUTPATIENT op ON p.Patient_Code = op.OP_Code
                LEFT JOIN EXAMINATION_MED em ON p.Patient_Code = em.OP_Code
                                               AND ed.Doc_Code = em.Doc_Code
@@ -97,6 +97,22 @@ router.get('/patient-detail', (req, res) => {
   });
 });
 
+router.delete('/delete-patients', (req, res) => {
+  const { patient } = req.body;
+  console.log(patient)
+
+  const sql = `DELETE FROM patient WHERE Patient_Code = ?`
+
+  db.query(sql, patient.Patient_Code, (err, result) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ error: 'Database query failed.' });
+    }
+
+    console.log('Query result:', result);
+    return res.sendStatus(200); // Respond with success
+  });
+});
 router.delete('/delete-records', (req, res) => {
   const { patient } = req.body;
   console.log(patient)
@@ -109,9 +125,17 @@ router.delete('/delete-records', (req, res) => {
     patient.Med_Code
   ]
 
+  const outpatient = [
+    patient.Patient_Code,
+    patient["Examination date"],
+    patient.Doc_Code,
+    patient.Med_Code
+  ]
+
   const sql = ((patient.Patient_Code).substring(0,2) == 'IP')? `CALL delete_records_inpatient(?, ?, ?, ?, ?)` 
                                                          : `CALL delete_records_outpatient(?, ?, ?, ?)`
-  db.query(sql, inpatient, (err, result) => {
+  const param = ((patient.Patient_Code).substring(0,2) == 'IP')? inpatient : outpatient
+  db.query(sql, param, (err, result) => {
     if (err) {
       console.error('Error executing query:', err);
       return res.status(500).json({ error: 'Database query failed.' });

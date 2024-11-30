@@ -198,6 +198,20 @@ const PatientInfo = (props) => {
 
     //Handle patient record deletion
     const handleDelete = async (index) => {
+        // Check if the patient has only one record
+        if (patients.length === 1) {
+            alert("Patient must have at least 1 record.");
+            return;
+        }
+
+        const confirmDelete = window.confirm(
+          "Are you sure you want to delete this record? (This action can't be undone)"
+        );
+      
+        if (!confirmDelete) {
+          return; // Exit the function if the user cancels
+        }
+      
         try {
           const patientToDelete = patients[index]; // Extract the specific patient data
       
@@ -219,9 +233,7 @@ const PatientInfo = (props) => {
           console.error('Error:', error);
         }
       };
-
-    
-
+      
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(patients)
@@ -323,13 +335,13 @@ const PatientInfo = (props) => {
                         </span>
                         <select
                             name="Gender"
-                            value={patientData.Gender}
+                            value={patientData.Gender || ""}
                             onChange={handleChange}
                             disabled={edited}
                             required={!edited}
                             className='bg-slate-100 rounded-2xl px-2 disabled:bg-white'
                         >
-                            <option value="">Select Gender</option>
+                            <option value="" disabled>Select Gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                             <option value="Others">Others</option>
@@ -477,7 +489,9 @@ const PatientInfo = (props) => {
                             <thead className="bg-gray-100 border-b">
                                 <tr className='*:py-2 *:px-4 *:text-center *:border-x-2 *:font-semibold *:text-gray-700 '>
                                     {(!edited) ? <th className=""></th> : ""}
-                                    <th className="">Doc_Code</th>
+                                    <th className="">Doc_Code{edited === false && (
+                                        <span style={{ color: 'red' }}> *</span>
+                                    )}</th>
                                     <th className="">Patient_Code</th>
                                     <th className="">{(inPatient) ? "Start date" : "Examination Date"}
                                         {edited === false && (
@@ -485,15 +499,17 @@ const PatientInfo = (props) => {
                                     )}</th>
                                     <th className="">{(inPatient) ? "End date" : "Diagnosis"}
                                         {edited === false && (
-                                        <span style={{ color: 'red' }}>*</span>
+                                        <span style={{ color: 'red' }}> *</span>
                                         )}
                                     </th>
                                     <th className="">{(inPatient) ? "Result" : "Fee"}
                                         {edited === false && (
-                                        <span style={{ color: 'red' }}>*</span>
+                                        <span style={{ color: 'red' }}> *</span>
                                     )}</th>
                                     {(!inPatient) ? <th className="">Next_examination</th> : ""}
-                                    <th className="">Med_Code</th>
+                                    <th className="">Med_Code{edited === false && (
+                                        <span style={{ color: 'red' }}> *</span>
+                                    )}</th>
                                 </tr>
                             </thead>
 
@@ -504,10 +520,12 @@ const PatientInfo = (props) => {
                                         <td className=""><select 
                                                             name="Doc_Code" 
                                                             disabled={edited}
-                                                            value={patient['new_Doc_Code'] || patient['Doc_Code']} // Set default value here
+                                                            required={!edited}
+                                                            value={patient['new_Doc_Code'] || patient['Doc_Code'] || ""} // Set default value here
                                                             onChange={(e) => handleTable(e, index)} // Update selected doctor on change
                                                             className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center disabled:text-black"
                                                         >
+                                                            <option value="" disabled>Select doctor</option>
                                                             {doctors.map((doctor) => (
                                                                 <option key={doctor.Doc_Code} value={doctor.Doc_Code}>
                                                                     {doctor.Doc_Code}
@@ -548,7 +566,7 @@ const PatientInfo = (props) => {
                                             />) : (
                                             <input
                                                 name="Diagnosis"
-                                                value={patient["Diagnosis"] ? patient["new_Diagnosis"] ?? patient["Diagnosis"] : ''}
+                                                value={patient["Diagnosis"] || patient["new_Diagnosis"] ? patient["new_Diagnosis"] ?? patient["Diagnosis"] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
                                                 required={!edited}
@@ -558,7 +576,7 @@ const PatientInfo = (props) => {
                                         <td className="">{(inPatient) ? (
                                             <input
                                                 name="Result"
-                                                value={patient["Result"] ? patient["new_Result"] ?? patient["Result"] : ''}
+                                                value={patient["Result"] || patient["new_Result"] ? patient["new_Result"] ?? patient["Result"] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
                                                 required={!edited}
@@ -566,7 +584,8 @@ const PatientInfo = (props) => {
                                             />) : (
                                             <input
                                                 name="Fee"
-                                                value={patient["Fee"] ? patient["new_Fee"] ?? patient["Fee"] : ''}
+                                                type="number"
+                                                value={patient["Fee"] || patient["new_Fee"] ? patient["new_Fee"] ?? patient["Fee"] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
                                                 required={!edited}
@@ -586,11 +605,13 @@ const PatientInfo = (props) => {
                                         <td className=""><select 
                                                             name="Med_Code" 
                                                             disabled={edited}
-                                                            value={patient['new_Med_Code'] || patient['Med_Code']} // Set default value here
+                                                            required={!edited}
+                                                            value={patient['new_Med_Code'] || patient['Med_Code'] || ""} // Set default value here
                                                             onChange={(e) => handleTable(e, index)} // Update selected doctor on change
                                                             className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center disabled:text-black"
                                                         >
-                                                           {medications.map((medication, index) => {
+                                                            <option value="" disabled>Select med</option>
+                                                            {medications.map((medication, index) => {
                                                                 const key = +Object.keys(medication)[0]; // Extract the first key
                                                                 const value = Object.values(medication)[0]; // Extract the first value
                                                                 // console.log(key)

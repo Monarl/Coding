@@ -74,6 +74,38 @@ const patients = (props) => {
     }); 
   }
 
+  const handleDelete = async (index) => {
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this patient? (This action can't be undone)"
+    );
+  
+    if (!confirmDelete) {
+      return; // Exit the function if the user cancels
+    }
+  
+    try {
+      const patientToDelete = medications[index]; // Extract the specific patient data
+  
+      const response = await fetch(`http://localhost:8000/patients/delete-patients`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ patient: patientToDelete }), // Send the patient data to the backend
+      });
+  
+      if (response.ok) {
+        // Remove the patient from the state
+        setMedications((prevPatients) => prevPatients.filter((_, i) => i !== index));
+      } else {
+        console.error('Failed to delete the patient.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     fetch(`http://localhost:8000/patients/patient-search?search=${search}`)
@@ -105,8 +137,8 @@ const patients = (props) => {
                     placeholder="Search for patient's name" 
                     className='mb-5 inline border-2 border-black placeholder-slate-400 p-2 min-w-[30vw]'/></form>
       </div>
-      <div className="overflow-x-auto"> {/*Table design */}
-        <table className="table-auto min-w-full bg-white border border-gray-300">
+      <div className="overflow-x-auto w-full"> {/*Table design */}
+        <table className="table-auto bg-white border border-gray-300 w-full mx-auto">
           <thead className="bg-gray-100 border-b">
             <tr>
               <th className="py-2 px-4 text-left font-semibold text-gray-700">Patient_Code</th>
@@ -115,6 +147,7 @@ const patients = (props) => {
               <th className="py-2 px-4 text-left font-semibold text-gray-700">Gender</th>
               <th className="py-2 px-4 text-left font-semibold text-gray-700">Date of Birth</th>
               <th className="py-2 px-4 text-left font-semibold text-gray-700">Address</th>
+              <th className="py-2 px-4 text-left font-semibold text-gray-700"></th>
             </tr>
           </thead>
           <tbody>
@@ -127,6 +160,7 @@ const patients = (props) => {
                 <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{medication.Gender}</td>
                 <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{new Date(medication.Dob).toLocaleDateString()}</td>
                 <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{medication.Address}</td>
+                <td className="py-2 px-4 w-1 text-center hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70"><button type='button' className="" onClick={() => handleDelete(index)}>🗑️</button></td>
               </tr>
             ))}
             <tr className="border-b hover:bg-blue-300">
