@@ -5,7 +5,13 @@ import Patients from './components/patients.jsx'
 import About from './components/about.jsx'
 import Patient from './components/patient-info.jsx'
 import Employees from './components/employees.jsx'
+import Medications from './components/medication/medications.jsx'
+import Medication_info from './components/medication/medication-info.jsx'
+import Add_medication from './components/medication/add_medication.jsx'
+import Providers from './components/provder/providers.jsx'
+import Add_provider from './components/provder/add_provider.jsx'
 import { useEffect, useState } from 'react'
+import Provider_info from './components/provder/provider_info.jsx'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -68,6 +74,30 @@ function App() {
           <Route 
             path='/employees' 
             element={<Employees loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/medications' 
+            element={<Medications loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/medications/med_info' 
+            element={<Medication_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/medications/add_medication' 
+            element={<Add_medication loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/providers' 
+            element={<Providers loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/providers/add_provider' 
+            element={<Add_provider loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/providers/provider_info' 
+            element={<Provider_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
           />
         </Routes>
       </BrowserRouter>
