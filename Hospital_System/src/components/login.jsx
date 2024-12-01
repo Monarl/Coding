@@ -11,7 +11,7 @@ const Login = (props) => {
 
   useEffect(() => {
     if (props.loggedIn) {
-      navigate('/patients')
+      navigate('/main')
     } 
   }, [props.loggedIn, navigate]) //If logged in, go to the database page
 
@@ -45,7 +45,7 @@ const Login = (props) => {
           localStorage.setItem('user', JSON.stringify({ email: email, expiry: now.getTime() + 3600000, token: r.token, userCode: r.userCode, Role: r.Role}))
           props.setLoggedIn(true)
           props.setEmail(email)
-          navigate('/patients')
+          navigate('/main')
         } else {
           window.alert('Wrong email or password')
         }
