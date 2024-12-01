@@ -5,10 +5,10 @@ const port = 8000
 
 // Create MySQL connection using environment variables
 const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost', // It's better to use environment variables for sensitive data
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'Vyhspro@123',
-    database: process.env.DB_NAME || 'hospital',
+    host: 'localhost', // It's better to use environment variables for sensitive data
+    user: 'root',
+    password: 'Nhvu2311@@',
+    database: 'hospital',
   });
   
   // Connect to MySQL

@@ -12,6 +12,7 @@ import Providers from './components/provder/providers.jsx'
 import Add_provider from './components/provder/add_provider.jsx'
 import { useEffect, useState } from 'react'
 import Provider_info from './components/provder/provider_info.jsx'
+import Employee_info from './components/employee-info.jsx'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -74,6 +75,10 @@ function App() {
           <Route 
             path='/employees' 
             element={<Employees loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+           <Route 
+            path='/employees/employee' 
+            element={<Employee_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
           />
           <Route 
             path='/medications' 
