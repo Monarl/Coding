@@ -4,8 +4,6 @@ import dotenv from 'dotenv';
 import {db} from "./index.js"
 
 // Load environment variables
-dotenv.config({ path: 'D:/HK241/Hospital/Coding/Hospital_System/Login_secret_key.env' });
-dotenv.config({ path: 'D:/HK241/Hospital/Coding/Hospital_System/Login_secret_key.env' });
 
 const router = express.Router();
 
@@ -95,44 +93,44 @@ router.get('/employee-list', (req, res) => {
           \`Degree's year\` = ? 
         WHERE 
           Emp_Code = ?;
-      `;
-  
-      const values = [
-        updatedEmployee.F_name,
-        updatedEmployee.L_name,
-        updatedEmployee.Phone_num,
-        updatedEmployee.Gender,
-        adjustDate(updatedEmployee.Dob),
-        updatedEmployee.Address,
-        adjustDate(updatedEmployee.Start_date),
-        updatedEmployee.Dept_Code,
-        updatedEmployee.Specialty_Name,
-        updatedEmployee.Degree_year,
-        // Thêm trường Position
-        updatedEmployee.id,       // Employee code (primary key)
-      ];
-  
-      // Execute the query within the transaction
-      db.query(query, values, (err, result) => {
-        if (err) {
-          // Rollback if any error occurs
-          db.rollback(() => {
-            console.error(err);
-            res.status(500).send('Failed to update employee, all changes reverted');
-          });
-        } else {
-          // Commit the transaction if successful
-          db.commit((commitErr) => {
-            if (commitErr) {
-              db.rollback(() => {
-                res.status(500).send('Failed to commit transaction');
-              });
-            } else {
-              res.send('Employee updated successfully');
+        `;
+
+        // Giá trị truyền vào SQL
+        const values = [
+            updatedEmployee.F_name,
+            updatedEmployee.L_name,
+            updatedEmployee.Phone_num,
+            updatedEmployee.Gender,
+            adjustDate(updatedEmployee.Dob),
+            updatedEmployee.Address,
+            adjustDate(updatedEmployee.Start_date),
+            updatedEmployee.Dept_Code,
+            updatedEmployee.Specialty_Name,
+            updatedEmployee.Degree_year,
+            updatedEmployee.id // Khóa chính
+        ];
+
+        // Thực thi câu lệnh SQL
+        db.query(query, values, (err, result) => {
+            if (err) {
+                // Rollback nếu có lỗi
+                return db.rollback(() => {
+                    console.error('SQL Execution Error:', err);
+                    res.status(500).send('Failed to update employee, all changes reverted');
+                });
             }
-          });
-        }
-      });
+
+            // Commit giao dịch
+            db.commit((commitErr) => {
+                if (commitErr) {
+                    return db.rollback(() => {
+                        console.error('Commit Error:', commitErr);
+                        res.status(500).send('Failed to commit transaction');
+                    });
+                }
+                res.send('Employee updated successfully');
+            });
+        });
     });
 });
 

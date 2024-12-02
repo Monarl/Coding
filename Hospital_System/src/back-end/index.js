@@ -7,7 +7,7 @@ const port = 8000
 const db = mysql.createConnection({
     host: 'localhost', // It's better to use environment variables for sensitive data
     user:  'root',
-    password:  'Nhvu2311@@',
+    password:  'Vyhspro@123',
     database:  'hospital',
   });
   

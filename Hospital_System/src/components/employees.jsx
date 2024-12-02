@@ -120,7 +120,6 @@ const nurse = employees
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Gender</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Date of Birth</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Specialty</th>
-                    <th className="py-2 px-4 text-left font-semibold text-gray-700">Specialty</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Address</th>
                   </tr>
                 </thead>

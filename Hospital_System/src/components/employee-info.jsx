@@ -170,8 +170,8 @@ const Employee_info = (props) => {
                 });
             }
             setEdited(!edited);
-            //if (inserted) navigate('/employees');
-            //window.location.reload();
+            if (inserted) navigate('/employees');
+            window.location.reload();
         })
         .catch((error) => {
             console.error('Submit Error:', error);
