@@ -4,10 +4,7 @@ import dotenv from 'dotenv';
 import {db} from "./index.js"
 
 // Load environment variables
-<<<<<<< HEAD
 dotenv.config({ path: '../../Login_secret_key.env' });
-=======
->>>>>>> 86fa40a2d439e994dbe8053e5498fae88bb2b8dc
 
 const router = express.Router();
 

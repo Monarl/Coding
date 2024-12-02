@@ -107,7 +107,7 @@ const Providers = (props)=>{
             <tr className="border-b hover:bg-blue-300"> 
                 <td colSpan="5" className='py-2 px-4 font-semibold text-center hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70 hover:underline'> {/* button for Adding new medication*/}
                     <Link to={`/providers/add_provider` } className="block w-full h-full">
-                    <span>Add provder</span></Link></td>
+                    <span>Add provider</span></Link></td>
             </tr>
             </tbody>
         </table>
