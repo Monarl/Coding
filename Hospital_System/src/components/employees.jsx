@@ -10,6 +10,7 @@ const employees = (props) => {
     const [search, setSearch] = useState(""); // Store searchbar value
     const [error, setError] = useState(null);
 
+
     useEffect(() => {
       const user = JSON.parse(localStorage.getItem('user'))
       const now = new Date()
@@ -58,7 +59,6 @@ const nurse = employees
     }
     return String(arr.length + 1).padStart(3, '0'); // Không có khoảng trống, trả về giá trị tiếp theo
   };
-
 
 
     const getEmployees = () => {
@@ -120,6 +120,7 @@ const nurse = employees
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Gender</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Date of Birth</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Specialty</th>
+                    <th className="py-2 px-4 text-left font-semibold text-gray-700">Specialty</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Address</th>
                   </tr>
                 </thead>
@@ -132,8 +133,9 @@ const nurse = employees
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.L_name}</td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.Gender}</td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{new Date(employee.Dob).toLocaleDateString()}</td>
-                      <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.Specialty_Name}</td>
+                      <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee["Specialty Name"]}</td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.Address}</td>
+                     
                      
                     </tr>
                   ))}

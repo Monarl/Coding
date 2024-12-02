@@ -88,6 +88,10 @@ function App() {
             path='/employees/employee' 
             element={<Employee_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
           />
+           <Route 
+            path='/employees/employee' 
+            element={<Employee_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
           <Route 
             path='/medications' 
             element={<Medications loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}

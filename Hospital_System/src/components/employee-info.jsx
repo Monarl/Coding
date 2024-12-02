@@ -44,19 +44,9 @@ const Employee_info = (props) => {
         today.getDate() + 1
     ).toISOString().split("T")[0];
 
-    // function getRandomDateInLastTwoYears() {
-    //     const now = new Date();
-    //     const twoYearsAgo = new Date();
-    //     twoYearsAgo.setFullYear(now.getFullYear() - 2);
-        
-    //     const randomTimestamp = Math.random() * (now.getTime() - twoYearsAgo.getTime()) + twoYearsAgo.getTime();
-    //     return new Date(randomTimestamp);
-    // }
     
     const [employees, setEmployees] = useState([]);
     const [departments, setDepartments] = useState([]);
-    // const [doctors, setDoctors] = useState([]);
-    // const [nurses, setNurses] = useState([]);
     const [employeeData, setEmployeeData] = useState({
         F_name: '',
         L_name: '',
@@ -67,7 +57,6 @@ const Employee_info = (props) => {
         Start_date: '',
         Dept_Code: '',
         Specialty_Name: '',
-        Position: '',
         Degree_year:'',
         id: '',
     });
@@ -127,11 +116,10 @@ const Employee_info = (props) => {
                     Gender: data[0]?.Gender || '',
                     Dob: data[0]?.Dob || '',
                     Address: data[0]?.Address || '',
-                    Start_date: data[0]?.Start_date || '',
+                    Start_date: data[0]?.['Start date'] || '',
                     Dept_Code: data[0]?.Dept_Code || '',
-                    Specialty_Name: data[0]?.Specialty_Name || '',
-                    Position: data[0]?.Position || '',
-                    Degree_year: data[0]?.Degree_year || '',
+                    Specialty_Name: data[0]?.['Specialty Name'] || '',
+                    Degree_year: data[0]?.['Degree\'s year'] || '',
                     id: employeeId || '',
                 });
 
@@ -144,24 +132,6 @@ const Employee_info = (props) => {
                 //console.log(dataDoctors);
                 setDepartments(dataDepartment);
 
-                // const responseNurses = await fetch(`http://localhost:8000/patients/nurse-list`);
-                // if (!responseNurses.ok) {
-                //     throw new Error('Network response was not ok');
-                // }
-                // const dataNurses = await responseNurses.json();
-                // //console.log(dataNurses);
-                // setNurses(dataNurses);
-
-
-                // const responseMedications = await fetch(`http://localhost:8000/patients/medication-list`);
-                // if (!responseMedications.ok) {
-                //     throw new Error('Network response was not ok');
-                // }
-                // const dataMedications = await responseMedications.json();
-                // const mergedMeds = dataMedications.map(med => ({[med.Med_Code] : `${med.Med_Code}: ${med.Med_Name}`}));
-                // console.log(mergedMeds);
-                // setMedications(mergedMeds);
-                // if(inserted && patients.length == 0) addRecord()
 
             } catch (error) {
                 console.error('Failed to fetch patient data:', error);
@@ -180,98 +150,33 @@ const Employee_info = (props) => {
             [name]: value,
         }));
     };
-
-    const handleTable = (e, index) => {
-        let { name, value } = e.target;
-        //console.log(name, value, index);
-        setEmployees((prevEmployees) => {
-            const updatedEmployees = [...prevEmployees];
-            // Update the specific field of the patient at the given index
-            updatedEmployees[index] = {
-                ...updatedEmployees[index],
-                ["new_" + name]: value
-            }
-            console.log(updatedEmployees[index]);
-            return updatedEmployees
-        })
-    }
-
-    // //Handle patient record deletion
-    // const handleDelete = async (index) => {
-    //     // Check if the patient has only one record
-    //     if (patients.length === 1) {
-    //         alert("Patient must have at least 1 record.");
-    //         return;
-    //     }
-
-    //     const confirmDelete = window.confirm(
-    //       "Are you sure you want to delete this record? (This action can't be undone)"
-    //     );
-      
-    //     if (!confirmDelete) {
-    //       return; // Exit the function if the user cancels
-    //     }
-      
-    //     try {
-    //       const patientToDelete = patients[index]; // Extract the specific patient data
-      
-    //       const response = await fetch(`http://localhost:8000/patients/delete-records`, {
-    //         method: 'DELETE',
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({ patient: patientToDelete }), // Send the patient data to the backend
-    //       });
-      
-    //       if (response.ok) {
-    //         // Remove the patient from the state
-    //         setPatients((prevPatients) => prevPatients.filter((_, i) => i !== index));
-    //       } else {
-    //         console.error('Failed to delete the patient record.');
-    //       }
-    //     } catch (error) {
-    //       console.error('Error:', error);
-    //     }
-    //   };
       
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(employees)
-        fetch(`http://localhost:8000/employees/employee-update`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({employeeData, employees}),
-        })
+        // Log dữ liệu đang được gửi
+    // console.log('Submitting Data:', { employeeData, employees });
+    fetch(`http://localhost:8000/employees/employee-update`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ employeeData, employees }),
+    })
         .then((response) => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          setEdited(!edited)
-          if(inserted) navigate('/employees')
-          window.location.reload();
+            if (!response.ok) {
+                return response.json().then((error) => {
+                    throw new Error(`Error: ${error.message}`);
+                });
+            }
+            setEdited(!edited);
+            //if (inserted) navigate('/employees');
+            //window.location.reload();
         })
-      };
-
-    //   const addRecord = () => {
-    //     // Define a new patient object (customize as needed)
-    //     const newPatient = {
-    //         Patient_Code: patientId,
-    //         'Start date': null,
-    //         'End date': null,
-    //         Doc_Code: 'D001',
-    //         'Result': "Fine",
-    //         'Diagnosis': 'Flu',
-    //         'Fee': 10,
-    //         'Examination date': null,
-    //         'Next_examination': null,
-    //         'Med_Code': 1
-    //     };
-    
-    //     // Update state by adding the new object to the existing array
-    //     setPatients([...patients, newPatient]);
-    //   };
+        .catch((error) => {
+            console.error('Submit Error:', error);
+        });
+};
 
 
       const adjustDate = (dateString) => {
@@ -409,7 +314,7 @@ const Employee_info = (props) => {
   />
 </div>
 <div className='md:col-span-3 col-span-6'>
-  <span>+ Department: {edited === false && (
+  <span>+ Department Code: {edited === false && (
     <span style={{ color: 'red' }}>* </span>
   )}</span>
   

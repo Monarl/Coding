@@ -5,6 +5,7 @@ import {db} from "./index.js"
 
 // Load environment variables
 dotenv.config({ path: 'D:/HK241/Hospital/Coding/Hospital_System/Login_secret_key.env' });
+dotenv.config({ path: 'D:/HK241/Hospital/Coding/Hospital_System/Login_secret_key.env' });
 
 const router = express.Router();
 
@@ -65,16 +66,22 @@ router.get('/employee-list', (req, res) => {
 
   router.put('/employee-update', (req, res) => {
     const updatedEmployee = req.body.employeeData;
-  
-    // Start a transaction
+
+    // Kiểm tra dữ liệu đầu vào
+    if (!updatedEmployee || !updatedEmployee.id) {
+        return res.status(400).send('Invalid employee data');
+    }
+
+    // Bắt đầu giao dịch
     db.beginTransaction((err) => {
-      if (err) {
-        return res.status(500).send('Failed to initiate transaction');
-      }
-  
-      // Prepare the SQL query and values for updating an employee
-      const query = `
-        UPDATE EMPLOYEE 
+        if (err) {
+            console.error('Transaction initiation error:', err);
+            return res.status(500).send('Failed to initiate transaction');
+        }
+
+        // Câu lệnh SQL
+        const query = `
+             UPDATE EMPLOYEE 
         SET 
           F_name = ?, 
           L_name = ?, 
@@ -82,10 +89,10 @@ router.get('/employee-list', (req, res) => {
           Gender = ?, 
           Dob = ?, 
           Address = ?, 
-          Start_date = ?, 
+          \`Start date\` = ?, 
           Dept_Code = ?, 
-          Specialty_Name = ?, 
-          Degree_year = ? 
+          \`Specialty Name\` = ?, 
+          \`Degree's year\` = ? 
         WHERE 
           Emp_Code = ?;
       `;
@@ -127,7 +134,8 @@ router.get('/employee-list', (req, res) => {
         }
       });
     });
-  });
+});
+
   
   
   
