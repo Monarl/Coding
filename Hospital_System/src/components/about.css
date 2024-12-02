@@ -1,0 +1,124 @@
+/* Reset all margins and paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Make sure the page and body don't have overflow issues */
+  body, .about-page {
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
+    max-width: 100%; /* Ensure no element exceeds viewport width */
+  }
+  
+  /* Navbar sticky behavior */
+  .about-page .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensure navbar stays on top */
+    background-color: #ffffff;
+    box-shadow: 0 4px 2px -2px gray; /* Subtle shadow effect */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  /* Header section styling */
+  .about-header {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .header-content h1 {
+    font-size: 4rem;
+  }
+  
+  .header-content p {
+    font-size: 1.5rem;
+    margin-top: 10px;
+  }
+  
+  /* Main content styling */
+  .about-content {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+  
+  /* Section styling */
+  .about-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #9bf8fd;
+  }
+  
+  .about-section > .about-text, .about-section > .about-image {
+    margin-bottom: 30px;
+  }
+  
+  .about-text, .about-image {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+  
+  .about-text h2 {
+    color: #6800f9;
+    font-size: 2rem;
+  }
+  
+  .about-footer {
+    background: #2c3e50;
+    color: white;
+    text-align: left;
+    padding: 30px 20px;
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  .about-footer h3 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  .about-footer p {
+    font-size: 1.5rem;
+    margin: 5px 0;
+  }
+  
+  .about-footer .contact-info {
+    font-size: 1.5rem;
+  }
+  
+  .about-footer .contact-info a {
+    color: #4facfe;
+    text-decoration: none;
+  }
+  
+  .about-footer .contact-info a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsive styling for screen sizes above 768px */
+  @media (min-width: 768px) {
+    .about-section {
+      flex-wrap: nowrap;
+    }
+  
+    .about-text, .about-image {
+      flex: 1 1 50%;
+    }
+  }
+  

@@ -9,7 +9,7 @@ const navbar = (props) => {
         <p className='text-xl ml-5 text-center font-bold text-red-300'>HOSPITAL DATABASE PROJECT</p>
         <div className='box-border w-1/2 min-w-96 flex justify-evenly text-slate-50 h-20 max-h-full items-center'>
             <button className='h-full px-5 hover:text-lg  hover:bg-cyan-300 hover:text-yellow-200 transition-colors duration-500 w-1/3 hover:font-bold font-bkel'
-                    onClick={() => navigate('/patients')}>Database</button>
+                    onClick={() => navigate('/main')}>Database</button>
             <button className='h-full px-5 hover:text-lg  hover:bg-cyan-300 hover:text-yellow-200 transition-colors duration-500 w-1/3 hover:font-bold font-bkel'
                     onClick={() => navigate('/about')}>About us</button>
             <button className='h-full px-5 hover:text-lg  hover:bg-cyan-300 hover:text-yellow-200 transition-colors duration-500 w-1/3 hover:font-bold font-bkel'

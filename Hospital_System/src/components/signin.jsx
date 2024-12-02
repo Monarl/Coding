@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Login from './login';
 
-const Login = (props) => {
+const Signin = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (props.loggedIn) {
-      navigate('/main')
-    } 
-  }, [props.loggedIn, navigate]) //If logged in, go to the database page
 
   const checkAccountExists = (callback) => {
     fetch('http://localhost:8000/login/check-account', {
@@ -28,24 +23,20 @@ const Login = (props) => {
         callback(r?.userExists)
       })
   }
-  
-  // Log in a user using email and password
+
   const logIn = () => {
     fetch('http://localhost:8000/login/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password, employeeId : "" }),
+      body: JSON.stringify({ email, password, employeeId: "123" }),
     })
       .then((r) => r.json())
       .then((r) => {
+        console.log(r.message)
         if ('success' === r.message) {
-          const now = new Date()
-          localStorage.setItem('user', JSON.stringify({ email: email, expiry: now.getTime() + 3600000, token: r.token, userCode: r.userCode, Role: r.Role}))
-          props.setLoggedIn(true)
-          props.setEmail(email)
-          navigate('/main')
+          console.log(r.message)
         } else {
           window.alert('Wrong email or password')
         }
@@ -78,30 +69,16 @@ const Login = (props) => {
     }
 
     checkAccountExists((accountExists) => {
-      // If yes, log in
-      if (accountExists) logIn()
-      else alert('An account does not exist with this email address: ' + email)
-      // Else, ask user if they want to create a new account and if yes, then log in
-    //   else if (
-    //     window.confirm(
-    //       'An account does not exist with this email address: ' +
-    //         email +
-    //         '. Do you want to create a new account?',
-    //     )
-    //   ) {
-    //     logIn()
-    //   }
-    // })
-  });
-}
+      // If yes, 
+      if (accountExists) 
+        alert('An account already exist with this email address: ' + email)
+      //Else, ask user if they want to create a new account and if yes, then log in
+      else logIn()
+    })
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[url('/medical-records-1342x671.jpg')] bg-cover bg-center">
-      <div className="text-4xl font-bold text-white mb-8 bg-slate-700 bg-opacity-60 rounded-lg p-2 pl-6 pr-6 shadow-md">
-        <div>Login</div>
-      </div>
-
-      <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-md">
+    <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-md">
         <div className="mb-6">
           <input
             type='search'
@@ -129,12 +106,11 @@ const Login = (props) => {
             className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition"
             type="button"
             onClick={onButtonClick}
-            value={'Log in'}
+            value={'Sign in'}
           />
         </div>
       </div>
-    </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Signin

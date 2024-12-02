@@ -4,7 +4,11 @@ import dotenv from 'dotenv';
 import {db} from "./index.js"
 
 // Load environment variables
+<<<<<<< HEAD
 dotenv.config({ path: '../../Login_secret_key.env' });
+=======
+dotenv.config({ path: "../../Login_secret_key.env" });
+>>>>>>> 86fa40a2d439e994dbe8053e5498fae88bb2b8dc
 
 const router = express.Router();
 
@@ -20,6 +24,16 @@ const adjustDate = (dateString) => {
 // Define an API endpoint
 router.get('/doctor-list', (req, res) => {
   const sql = 'SELECT * FROM DOCTOR ORDER BY Doc_Code';
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+    res.json(results);
+  });
+});
+
+router.get('/nurse-list', (req, res) => {
+  const sql = 'SELECT * FROM NURSE ORDER BY Nurse_Code';
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err });
@@ -64,7 +78,7 @@ router.get('/patient-search', (req, res) => {
 router.get('/patient-detail', (req, res) => {
   const search = `%${req.query.search}%`
   const sql = ((req.query.search).substring(0,2) == 'IP')? `SELECT p.*, td.*, ip.*, tm.Med_Code FROM PATIENT p 
-               INNER JOIN TREATMENT_DETAIL td ON p.Patient_Code = td.IP_Code
+               LEFT JOIN TREATMENT_DETAIL td ON p.Patient_Code = td.IP_Code
                INNER JOIN INPATIENT ip ON p.Patient_Code = ip.IP_Code
                LEFT JOIN TREATMENT_MED tm ON p.Patient_Code = tm.IP_Code 
                                             AND td.Doc_Code = tm.Doc_Code 
@@ -72,7 +86,7 @@ router.get('/patient-detail', (req, res) => {
                                             AND td.\`End date\` = tm.\`End date\`
                WHERE p.Patient_Code LIKE ? 
                ORDER BY Patient_Code` : `SELECT p.*, ed.*, op.*, em.Med_Code FROM PATIENT p 
-               INNER JOIN EXAMINATION_DETAIL ed ON p.Patient_Code = ed.OP_Code
+               LEFT JOIN EXAMINATION_DETAIL ed ON p.Patient_Code = ed.OP_Code
                INNER JOIN OUTPATIENT op ON p.Patient_Code = op.OP_Code
                LEFT JOIN EXAMINATION_MED em ON p.Patient_Code = em.OP_Code
                                               AND ed.Doc_Code = em.Doc_Code
@@ -87,6 +101,54 @@ router.get('/patient-detail', (req, res) => {
   });
 });
 
+router.delete('/delete-patients', (req, res) => {
+  const { patient } = req.body;
+  console.log(patient)
+
+  const sql = `DELETE FROM patient WHERE Patient_Code = ?`
+
+  db.query(sql, patient.Patient_Code, (err, result) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ error: 'Database query failed.' });
+    }
+
+    console.log('Query result:', result);
+    return res.sendStatus(200); // Respond with success
+  });
+});
+router.delete('/delete-records', (req, res) => {
+  const { patient } = req.body;
+  console.log(patient)
+
+  const inpatient = [
+    patient.Patient_Code,
+    patient["Start date"],
+    patient["End date"],
+    patient.Doc_Code,
+    patient.Med_Code
+  ]
+
+  const outpatient = [
+    patient.Patient_Code,
+    patient["Examination date"],
+    patient.Doc_Code,
+    patient.Med_Code
+  ]
+
+  const sql = ((patient.Patient_Code).substring(0,2) == 'IP')? `CALL delete_records_inpatient(?, ?, ?, ?, ?)` 
+                                                         : `CALL delete_records_outpatient(?, ?, ?, ?)`
+  const param = ((patient.Patient_Code).substring(0,2) == 'IP')? inpatient : outpatient
+  db.query(sql, param, (err, result) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ error: 'Database query failed.' });
+    }
+
+    console.log('Query result:', result);
+    return res.sendStatus(200); // Respond with success
+  });
+});
 router.put('/patient-update', (req, res) => {
   const updatedPatient = req.body.patientData;
   const patient_records = req.body.patients;
@@ -133,16 +195,16 @@ router.put('/patient-update', (req, res) => {
         adjustDate(record['new_Examination date'] || record['Examination date'])
       ]
 
-      console.log(newTreatment, record['new_Med_Code'] || record['Med_Code']);
+      //console.log(newTreatment, record['new_Med_Code'] || record['Med_Code']);
 
       const finalValues = (updatedPatient.id.substr(0, 2) === "IP") ? 
         [...values, ...treatment.slice(0, 4), ...newTreatment.slice(0, 3), record['Med_Code'], record['new_Med_Code'] || record['Med_Code']] : 
         [...values.slice(0, 6), values[values.length - 1], ...treatment.slice(3), ...newTreatment.slice(2), record['Med_Code'], record['new_Med_Code'] || record['Med_Code']];
 
+      console.log(finalValues) 
       const query = (updatedPatient.id.substr(0, 2) === "IP") ? 
         `CALL update_inpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);` : 
         `CALL update_outpatient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-
       return { query, finalValues };
     };
 

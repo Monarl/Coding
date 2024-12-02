@@ -67,21 +67,22 @@ CREATE TABLE EMPLOYEE (
     L_name VARCHAR(20) NOT NULL,
     Phone_number VARCHAR(20) NOT NULL,
     Gender VARCHAR(20),
-    Dept_Code VARCHAR(20) NOT NULL
+    Dept_Code VARCHAR(20) NOT NULL,
+    Working VARCHAR(20) NOT NULL
 );
 
 INSERT INTO EMPLOYEE
 VALUES
-('D001', '1980-01-15', 'Cardiology', 2005, '2010-06-10', '123 Lê Lợi, District 1, Hồ Chí Minh City', 'John', 'Doe', '0912345678', 'Male', 'Doc'),
-('D002', '1985-02-20', 'Pediatrics', 2010, '2015-07-15', '456 Trần Hưng Đạo, District 5, Hồ Chí Minh City', 'Emily', 'Nguyen', '0923456789', 'Female', 'Doc'),
-('D003', '1975-03-12', 'Neurology', 2000, '2005-08-20', '789 Phạm Văn Đồng, District 7, Hồ Chí Minh City', 'David', 'Smith', '0934567890', 'Male', 'Doc'),
-('D004', '1990-04-05', 'Orthopedics', 2015, '2020-09-25', '101 Võ Văn Tần, District 3, Hồ Chí Minh City', 'Sophia', 'Le', '0945678901', 'Female', 'Doc'),
-('D005', '1988-05-18', 'Dermatology', 2012, '2018-11-30', '202 Nguyễn Huệ, District 10, Hồ Chí Minh City', 'James', 'Tran', '0956789012', 'Male', 'Doc'),
-('N001', '1982-06-25', 'Nursing', 2008, '2012-06-12', '50 Trần Quang Khải, District 2, Hồ Chí Minh City', 'Isabella', 'Pham', '0967890123', 'Female', 'Nu'),
-('N002', '1991-07-30', 'Nursing', 2014, '2016-07-15', '35 Nguyễn Trãi, District 4, Hồ Chí Minh City', 'Michael', 'Bui', '0978901234', 'Male', 'Nu'),
-('N003', '1989-08-22', 'Nursing', 2013, '2017-08-20', '123 Điện Biên Phủ, District 6, Hồ Chí Minh City', 'Olivia', 'Hoang', '0989012345', 'Female', 'Nu'),
-('N004', '1995-09-10', 'Nursing', 2018, '2020-09-01', '456 Lê Văn Sỹ, District 9, Hồ Chí Minh City', 'Henry', 'Vu', '0990123456', 'Male', 'Nu'),
-('N005', '1983-10-05', 'Nursing', 2009, '2011-10-10', '789 Đinh Tiên Hoàng, District 11, Hồ Chí Minh City', 'Charlotte', 'Phan', '0901234567', 'Female', 'Nu');
+('D001', '1980-01-15', 'Cardiology', 2005, '2010-06-10', '123 Lê Lợi, District 1, Hồ Chí Minh City', 'John', 'Doe', '0912345678', 'Male', 'Doc', 'Active'),
+('D002', '1985-02-20', 'Pediatrics', 2010, '2015-07-15', '456 Trần Hưng Đạo, District 5, Hồ Chí Minh City', 'Emily', 'Nguyen', '0923456789', 'Female', 'Doc', 'Active'),
+('D003', '1975-03-12', 'Neurology', 2000, '2005-08-20', '789 Phạm Văn Đồng, District 7, Hồ Chí Minh City', 'David', 'Smith', '0934567890', 'Male', 'Doc', 'Active'),
+('D004', '1990-04-05', 'Orthopedics', 2015, '2020-09-25', '101 Võ Văn Tần, District 3, Hồ Chí Minh City', 'Sophia', 'Le', '0945678901', 'Female', 'Doc','Active'),
+('D005', '1988-05-18', 'Dermatology', 2012, '2018-11-30', '202 Nguyễn Huệ, District 10, Hồ Chí Minh City', 'James', 'Tran', '0956789012', 'Male', 'Doc','Active'),
+('N001', '1982-06-25', 'Nursing', 2008, '2012-06-12', '50 Trần Quang Khải, District 2, Hồ Chí Minh City', 'Isabella', 'Pham', '0967890123', 'Female', 'Nu','Active'),
+('N002', '1991-07-30', 'Nursing', 2014, '2016-07-15', '35 Nguyễn Trãi, District 4, Hồ Chí Minh City', 'Michael', 'Bui', '0978901234', 'Male', 'Nu','Active'),
+('N003', '1989-08-22', 'Nursing', 2013, '2017-08-20', '123 Điện Biên Phủ, District 6, Hồ Chí Minh City', 'Olivia', 'Hoang', '0989012345', 'Female', 'Nu','Active'),
+('N004', '1995-09-10', 'Nursing', 2018, '2020-09-01', '456 Lê Văn Sỹ, District 9, Hồ Chí Minh City', 'Henry', 'Vu', '0990123456', 'Male', 'Nu','Active'),
+('N005', '1983-10-05', 'Nursing', 2009, '2011-10-10', '789 Đinh Tiên Hoàng, District 11, Hồ Chí Minh City', 'Charlotte', 'Phan', '0901234567', 'Female', 'Nu','Active');
 
 CREATE TABLE DOCTOR (
 	Doc_Code VARCHAR(20) PRIMARY KEY
@@ -95,8 +96,18 @@ CREATE TABLE USER (
 );
 
 INSERT INTO USER
-VALUES
-('7777', 'vyhspro12345@gmail.com', '$2b$10$ydCriD.7WdoxOJ6y9bblhOZxMFuYGeR1LmYTsqsX38rtageOUK286', 'Manager');
+VALUES -- Password for employee: 12345678. Password for manager: vy280904
+('7777', 'vyhspro12345@gmail.com', '$2b$10$ydCriD.7WdoxOJ6y9bblhOZxMFuYGeR1LmYTsqsX38rtageOUK286', 'Manager'),
+('D001', 'D001@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Dean'),
+('D002', 'D002@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Dean'),
+('D003', 'D003@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee'),
+('D004', 'D004@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee'),
+('D005', 'D005@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee'),
+('N001', 'N001@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee'),
+('N002', 'N002@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee'),
+('N003', 'N003@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee'),
+('N004', 'N004@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee'),
+('N005', 'N005@gmail.com', '$2b$10$JEUkzWbojvCbbwombgY64OSq4T4eWYNvTtEQIZtQCRnJXyGk6g7dC', 'Employee');
 
 INSERT INTO DOCTOR
 VALUES 
@@ -264,20 +275,20 @@ ALTER TABLE DOCTOR ADD FOREIGN KEY(Doc_Code) REFERENCES EMPLOYEE(Emp_Code);
 ALTER TABLE NURSE ADD FOREIGN KEY(Nurse_Code) REFERENCES EMPLOYEE(Emp_Code);
 
 ALTER TABLE EXAMINATION_DETAIL ADD FOREIGN KEY(Doc_Code) REFERENCES DOCTOR(Doc_Code);
-ALTER TABLE EXAMINATION_DETAIL ADD FOREIGN KEY(OP_Code) REFERENCES OUTPATIENT(OP_Code);
+ALTER TABLE EXAMINATION_DETAIL ADD FOREIGN KEY(OP_Code) REFERENCES OUTPATIENT(OP_Code) ON DELETE CASCADE;
 
-ALTER TABLE OUTPATIENT ADD FOREIGN KEY(OP_Code) REFERENCES PATIENT(Patient_Code);
+ALTER TABLE OUTPATIENT ADD FOREIGN KEY(OP_Code) REFERENCES PATIENT(Patient_Code) ON DELETE CASCADE;
 
-ALTER TABLE INPATIENT ADD FOREIGN KEY(IP_Code) REFERENCES PATIENT(Patient_Code);
+ALTER TABLE INPATIENT ADD FOREIGN KEY(IP_Code) REFERENCES PATIENT(Patient_Code) ON DELETE CASCADE;
 
 ALTER TABLE TREATMENT_DETAIL ADD FOREIGN KEY(Doc_Code) REFERENCES DOCTOR(Doc_Code);
-ALTER TABLE TREATMENT_DETAIL ADD FOREIGN KEY(IP_Code) REFERENCES INPATIENT(IP_Code);
+ALTER TABLE TREATMENT_DETAIL ADD FOREIGN KEY(IP_Code) REFERENCES INPATIENT(IP_Code) ON DELETE CASCADE;
 
 ALTER TABLE EXAMINATION_MED ADD FOREIGN KEY(Med_Code) REFERENCES MEDICATION(Med_Code);
-ALTER TABLE EXAMINATION_MED ADD FOREIGN KEY(Doc_Code, OP_Code, `Examination date`) REFERENCES EXAMINATION_DETAIL(Doc_Code, OP_Code, `Examination date`) ON UPDATE CASCADE;
+ALTER TABLE EXAMINATION_MED ADD FOREIGN KEY(Doc_Code, OP_Code, `Examination date`) REFERENCES EXAMINATION_DETAIL(Doc_Code, OP_Code, `Examination date`) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE TREATMENT_MED ADD FOREIGN KEY(Med_Code) REFERENCES MEDICATION(Med_Code);
-ALTER TABLE TREATMENT_MED ADD FOREIGN KEY(Doc_Code, IP_Code,`Start date`, `End date`) REFERENCES TREATMENT_DETAIL(Doc_Code, IP_Code,`Start date`, `End date`) ON UPDATE CASCADE;
+ALTER TABLE TREATMENT_MED ADD FOREIGN KEY(Doc_Code, IP_Code,`Start date`, `End date`) REFERENCES TREATMENT_DETAIL(Doc_Code, IP_Code,`Start date`, `End date`) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE PROVIDE ADD FOREIGN KEY(Med_code) REFERENCES MEDICATION(Med_Code);
 ALTER TABLE PROVIDE ADD FOREIGN KEY(Provider_num) REFERENCES PROVIDER(Provider_num);
@@ -445,12 +456,12 @@ CREATE PROCEDURE update_inpatient(
     IN new_Med_Code INT
 )
 BEGIN
-    -- DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    -- BEGIN
-        -- ROLLBACK; -- Rollback transaction on error
-    -- END;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK; -- Rollback transaction on error
+    END;
 
-    -- START TRANSACTION;
+    START TRANSACTION;
 
     -- Check if patient record exists, if not insert, otherwise update
     IF (SELECT COUNT(*) FROM patient WHERE Patient_Code = ID) = 0 THEN
@@ -493,6 +504,9 @@ BEGIN
 			UPDATE treatment_med
 			SET Doc_Code = new_Doc, `Start date` = new_Sdate, `End date` = new_Edate, Med_Code = new_Med_Code
 			WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code;
+            UPDATE treatment_detail
+			SET Result = new_result
+			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate;
             
 			IF (SELECT COUNT(*) FROM treatment_med 
 				WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate) = 0 THEN
@@ -521,7 +535,7 @@ BEGIN
         END IF;
     END IF;
 
-    -- COMMIT; -- Commit transaction if successful
+    COMMIT; -- Commit transaction if successful
 END //
 
 CREATE PROCEDURE update_outpatient(
@@ -560,18 +574,177 @@ BEGIN
         WHERE Patient_Code = ID;
     END IF;
     
+    -- Check if inpatient record exists, if not insert, otherwise update
+    IF (SELECT COUNT(*) FROM outpatient WHERE OP_Code = ID) = 0 THEN
+        INSERT INTO outpatient (OP_Code)
+        VALUES (ID);
+    END IF;
+    
     -- Check if examination_detail record exists, if not insert, otherwise update
-    IF (SELECT COUNT(*) FROM examination_detail WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate) = 0 THEN
-        INSERT INTO examination_detail (OP_Code, Doc_Code, `Examination date`, Diagnosis, Fee, Next_examination)
-        VALUES (ID, new_Doc, new_Edate, new_diagnosis, new_fee, Ndate);
+    IF (SELECT COUNT(*) FROM examination_detail 
+        WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate) = 0 THEN
+		IF (SELECT COUNT(*) FROM examination_detail 
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate) != 0 
+			AND (SELECT COUNT(*) FROM examination_med 
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate AND Med_Code = new_Med_Code) = 0 THEN 
+			INSERT INTO examination_med (OP_Code, Doc_Code, `Examination date`, Med_Code)
+			VALUES (ID, new_Doc, new_Edate, new_Med_Code);
+        ELSE
+			INSERT INTO examination_detail (OP_Code, Doc_Code, `Examination date`, Diagnosis, Fee, Next_examination)
+			VALUES (ID, new_Doc, new_Edate, new_diagnosis, new_fee, Ndate);
+            INSERT INTO examination_med (OP_Code, Doc_Code, `Examination date`, Med_Code)
+			VALUES (ID, new_Doc, new_Edate, new_Med_Code);
+		END IF;
     ELSE
-        UPDATE examination_detail
-        SET Doc_Code = new_Doc, `Examination date` = new_Edate, Diagnosis = new_diagnosis, Fee = new_fee, Next_examination = Ndate
-        WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+		IF (SELECT COUNT(*) FROM examination_detail 
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate) != 0 THEN
+			UPDATE examination_med
+			SET Doc_Code = new_Doc, `Examination date` = new_Edate, Med_Code = new_Med_Code
+			WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
+            UPDATE examination_detail
+			SET Diagnosis = new_diagnosis, Fee = new_fee, Next_examination = Ndate
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate;
+            
+			IF (SELECT COUNT(*) FROM examination_med 
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate) = 0 THEN
+				DELETE FROM examination_detail
+                WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+			END IF;
+                
+		ELSE
+			IF (SELECT COUNT(*) FROM examination_med 
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `Examination date` = Edate) > 1 THEN
+				INSERT INTO examination_detail (OP_Code, Doc_Code, `Examination date`, Diagnosis, Fee, Next_examination)
+				VALUES (ID, new_Doc, new_Edate, new_diagnosis, new_fee, Ndate);
+                
+                UPDATE examination_med
+				SET Doc_Code = new_Doc, `Examination date` = new_Edate, Med_Code = new_Med_Code
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
+			ELSE
+				UPDATE examination_detail
+				SET Doc_Code = new_Doc, `Examination date` = new_Edate, Diagnosis = new_diagnosis, Fee = new_fee, Next_examination = Ndate
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+				
+				UPDATE examination_med
+				SET Med_Code = new_Med_Code
+				WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate AND Med_Code = examination_med.Med_Code;
+            END IF;
+        END IF;
     END IF;
 
     COMMIT; -- Commit transaction if successful
 END //
+
+CREATE PROCEDURE delete_records_inpatient(
+	IN ID VARCHAR(20),
+    IN Sdate DATE,
+    IN Edate DATE,
+    IN Doc VARCHAR(20),
+    IN Med_Code INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK; -- Rollback transaction on error
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'An error occurred during the deletion.';
+    END;
+
+    START TRANSACTION;
+    
+    IF (SELECT COUNT(*) FROM treatment_med 
+		WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code) > 0 THEN
+        DELETE FROM treatment_med
+		WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code;
+        
+        IF (SELECT COUNT(*) FROM treatment_med 
+			WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate AND Med_Code = treatment_med.Med_Code) = 0 THEN
+			DELETE FROM treatment_detail
+			WHERE IP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `End date` = Edate;
+            
+		END IF;
+	END IF;
+    
+COMMIT; -- Commit transaction if successful
+END //
+
+CREATE PROCEDURE delete_records_outpatient(
+	IN ID VARCHAR(20),
+    IN Edate DATE,
+    IN Doc VARCHAR(20),
+    IN Med_Code INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK; -- Rollback transaction on error
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'An error occurred during the deletion.';
+    END;
+
+    START TRANSACTION;
+    
+    IF (SELECT COUNT(*) FROM examination_med 
+		WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code) > 0 THEN
+        DELETE FROM examination_med
+		WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
+        
+        IF (SELECT COUNT(*) FROM examination_med 
+			WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code) = 0 THEN
+			DELETE FROM examination_detail
+			WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate;
+            
+		END IF;
+	END IF;
+    
+COMMIT; -- Commit transaction if successful
+END //
+
+
+CREATE PROCEDURE UpsertEmployee(
+    IN p_Emp_Code VARCHAR(20),
+    IN p_F_name VARCHAR(20),
+    IN p_L_name VARCHAR(20),
+    IN p_Phone_number VARCHAR(20),
+    IN p_Gender VARCHAR(20),
+    IN p_Dob DATE,
+    IN p_Address VARCHAR(150),
+    IN p_Start_date DATE,
+    IN p_Dept_Code VARCHAR(20),
+    IN p_Specialty_Name VARCHAR(50),
+    IN p_Degree_year INT,
+    IN p_Working VARCHAR(20)
+)
+BEGIN
+    -- Kiểm tra xem Emp_Code đã tồn tại hay chưa
+    IF EXISTS (SELECT 1 FROM EMPLOYEE WHERE Emp_Code = p_Emp_Code) THEN
+        -- Nếu tồn tại, thực hiện UPDATE
+        UPDATE EMPLOYEE 
+        SET 
+            F_name = p_F_name,
+            L_name = p_L_name,
+            Phone_number = p_Phone_number,
+            Gender = p_Gender,
+            Dob = p_Dob,
+            Address = p_Address,
+            `Start date` = p_Start_date,
+            Dept_Code = p_Dept_Code,
+            `Specialty Name` = p_Specialty_Name,
+            `Degree's year` = p_Degree_year,
+            Working = p_Working
+        WHERE Emp_Code = p_Emp_Code;
+    ELSE
+        -- Nếu không tồn tại, thực hiện INSERT
+        INSERT INTO EMPLOYEE (
+            Emp_Code, F_name, L_name, Phone_number, Gender, Dob, Address, 
+            `Start date`, Dept_Code, `Specialty Name`, `Degree's year`, Working
+        ) VALUES (
+            p_Emp_Code, p_F_name, p_L_name, p_Phone_number, p_Gender, p_Dob, p_Address,
+            p_Start_date, p_Dept_Code, p_Specialty_Name, p_Degree_year, p_Working
+        );
+    END IF;
+END //
+
 
 DELIMITER ;
 
