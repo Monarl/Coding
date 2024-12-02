@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import Provider_info from './components/provder/provider_info.jsx'
 import Mainpage from './components/mainpage.jsx'
 import Signin from './components/signin.jsx'
+import Employee_info from './components/employee-info.jsx'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -82,6 +83,10 @@ function App() {
           <Route 
             path='/employees' 
             element={<Employees loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+           <Route 
+            path='/employees/employee' 
+            element={<Employee_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
           />
           <Route 
             path='/medications' 
