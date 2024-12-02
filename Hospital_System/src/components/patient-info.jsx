@@ -236,7 +236,8 @@ const PatientInfo = (props) => {
       
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(patients)
+        // console.log(patients)
+        console.log('Submitting Data:', { patientData, patients });
         fetch(`http://localhost:8000/patients/patient-update`, {
             method: 'PUT',
             headers: {
