@@ -59,29 +59,30 @@ VALUES
 CREATE TABLE EMPLOYEE (
 	Emp_Code VARCHAR(20) PRIMARY KEY,
     Dob DATE,
-    `Specialty Name` VARCHAR(50) NOT NULL,
-    `Degree's year` INT NOT NULL,
-	`Start date` DATE NOT NULL,
+    Specialty_Name VARCHAR(50) NOT NULL,
+    Degree_year INT NOT NULL,
+	Start_date DATE NOT NULL,
     Address VARCHAR(150) NOT NULL,
     F_name VARCHAR(20) NOT NULL,
     L_name VARCHAR(20) NOT NULL,
     Phone_number VARCHAR(20) NOT NULL,
     Gender VARCHAR(20),
-    Dept_Code VARCHAR(20) NOT NULL
+    Dept_Code VARCHAR(20) NOT NULL,
+    Position VARCHAR(50) NOT NULL
 );
 
 INSERT INTO EMPLOYEE
 VALUES
-('D001', '1980-01-15', 'Cardiology', 2005, '2010-06-10', '123 Lê Lợi, District 1, Hồ Chí Minh City', 'John', 'Doe', '0912345678', 'Male', 'Doc'),
-('D002', '1985-02-20', 'Pediatrics', 2010, '2015-07-15', '456 Trần Hưng Đạo, District 5, Hồ Chí Minh City', 'Emily', 'Nguyen', '0923456789', 'Female', 'Doc'),
-('D003', '1975-03-12', 'Neurology', 2000, '2005-08-20', '789 Phạm Văn Đồng, District 7, Hồ Chí Minh City', 'David', 'Smith', '0934567890', 'Male', 'Doc'),
-('D004', '1990-04-05', 'Orthopedics', 2015, '2020-09-25', '101 Võ Văn Tần, District 3, Hồ Chí Minh City', 'Sophia', 'Le', '0945678901', 'Female', 'Doc'),
-('D005', '1988-05-18', 'Dermatology', 2012, '2018-11-30', '202 Nguyễn Huệ, District 10, Hồ Chí Minh City', 'James', 'Tran', '0956789012', 'Male', 'Doc'),
-('N001', '1982-06-25', 'Nursing', 2008, '2012-06-12', '50 Trần Quang Khải, District 2, Hồ Chí Minh City', 'Isabella', 'Pham', '0967890123', 'Female', 'Nu'),
-('N002', '1991-07-30', 'Nursing', 2014, '2016-07-15', '35 Nguyễn Trãi, District 4, Hồ Chí Minh City', 'Michael', 'Bui', '0978901234', 'Male', 'Nu'),
-('N003', '1989-08-22', 'Nursing', 2013, '2017-08-20', '123 Điện Biên Phủ, District 6, Hồ Chí Minh City', 'Olivia', 'Hoang', '0989012345', 'Female', 'Nu'),
-('N004', '1995-09-10', 'Nursing', 2018, '2020-09-01', '456 Lê Văn Sỹ, District 9, Hồ Chí Minh City', 'Henry', 'Vu', '0990123456', 'Male', 'Nu'),
-('N005', '1983-10-05', 'Nursing', 2009, '2011-10-10', '789 Đinh Tiên Hoàng, District 11, Hồ Chí Minh City', 'Charlotte', 'Phan', '0901234567', 'Female', 'Nu');
+('D001', '1980-01-15', 'Cardiology', 2005, '2010-06-10', '123 Lê Lợi, District 1, Hồ Chí Minh City', 'John', 'Doe', '0912345678', 'Male', 'Doc', 'Dean'),
+('D002', '1985-02-20', 'Pediatrics', 2010, '2015-07-15', '456 Trần Hưng Đạo, District 5, Hồ Chí Minh City', 'Emily', 'Nguyen', '0923456789', 'Female', 'Doc', 'Dean'),
+('D003', '1975-03-12', 'Neurology', 2000, '2005-08-20', '789 Phạm Văn Đồng, District 7, Hồ Chí Minh City', 'David', 'Smith', '0934567890', 'Male', 'Doc', 'Doctor'),
+('D004', '1990-04-05', 'Orthopedics', 2015, '2020-09-25', '101 Võ Văn Tần, District 3, Hồ Chí Minh City', 'Sophia', 'Le', '0945678901', 'Female', 'Doc', 'Doctor'),
+('D005', '1988-05-18', 'Dermatology', 2012, '2018-11-30', '202 Nguyễn Huệ, District 10, Hồ Chí Minh City', 'James', 'Tran', '0956789012', 'Male', 'Doc', 'Doctor'),
+('N001', '1982-06-25', 'Nursing', 2008, '2012-06-12', '50 Trần Quang Khải, District 2, Hồ Chí Minh City', 'Isabella', 'Pham', '0967890123', 'Female', 'Nu', 'Nurse'),
+('N002', '1991-07-30', 'Nursing', 2014, '2016-07-15', '35 Nguyễn Trãi, District 4, Hồ Chí Minh City', 'Michael', 'Bui', '0978901234', 'Male', 'Nu', 'Nurse'),
+('N003', '1989-08-22', 'Nursing', 2013, '2017-08-20', '123 Điện Biên Phủ, District 6, Hồ Chí Minh City', 'Olivia', 'Hoang', '0989012345', 'Female', 'Nu', 'Nurse'),
+('N004', '1995-09-10', 'Nursing', 2018, '2020-09-01', '456 Lê Văn Sỹ, District 9, Hồ Chí Minh City', 'Henry', 'Vu', '0990123456', 'Male', 'Nu', 'Nurse'),
+('N005', '1983-10-05', 'Nursing', 2009, '2011-10-10', '789 Đinh Tiên Hoàng, District 11, Hồ Chí Minh City', 'Charlotte', 'Phan', '0901234567', 'Female', 'Nu', 'Nurse');
 
 CREATE TABLE DOCTOR (
 	Doc_Code VARCHAR(20) PRIMARY KEY
@@ -264,20 +265,20 @@ ALTER TABLE DOCTOR ADD FOREIGN KEY(Doc_Code) REFERENCES EMPLOYEE(Emp_Code);
 ALTER TABLE NURSE ADD FOREIGN KEY(Nurse_Code) REFERENCES EMPLOYEE(Emp_Code);
 
 ALTER TABLE EXAMINATION_DETAIL ADD FOREIGN KEY(Doc_Code) REFERENCES DOCTOR(Doc_Code);
-ALTER TABLE EXAMINATION_DETAIL ADD FOREIGN KEY(OP_Code) REFERENCES OUTPATIENT(OP_Code);
+ALTER TABLE EXAMINATION_DETAIL ADD FOREIGN KEY(OP_Code) REFERENCES OUTPATIENT(OP_Code) ON DELETE CASCADE;
 
-ALTER TABLE OUTPATIENT ADD FOREIGN KEY(OP_Code) REFERENCES PATIENT(Patient_Code);
+ALTER TABLE OUTPATIENT ADD FOREIGN KEY(OP_Code) REFERENCES PATIENT(Patient_Code) ON DELETE CASCADE;
 
-ALTER TABLE INPATIENT ADD FOREIGN KEY(IP_Code) REFERENCES PATIENT(Patient_Code);
+ALTER TABLE INPATIENT ADD FOREIGN KEY(IP_Code) REFERENCES PATIENT(Patient_Code) ON DELETE CASCADE;
 
 ALTER TABLE TREATMENT_DETAIL ADD FOREIGN KEY(Doc_Code) REFERENCES DOCTOR(Doc_Code);
-ALTER TABLE TREATMENT_DETAIL ADD FOREIGN KEY(IP_Code) REFERENCES INPATIENT(IP_Code);
+ALTER TABLE TREATMENT_DETAIL ADD FOREIGN KEY(IP_Code) REFERENCES INPATIENT(IP_Code) ON DELETE CASCADE;
 
 ALTER TABLE EXAMINATION_MED ADD FOREIGN KEY(Med_Code) REFERENCES MEDICATION(Med_Code);
-ALTER TABLE EXAMINATION_MED ADD FOREIGN KEY(Doc_Code, OP_Code, `Examination date`) REFERENCES EXAMINATION_DETAIL(Doc_Code, OP_Code, `Examination date`) ON UPDATE CASCADE;
+ALTER TABLE EXAMINATION_MED ADD FOREIGN KEY(Doc_Code, OP_Code, `Examination date`) REFERENCES EXAMINATION_DETAIL(Doc_Code, OP_Code, `Examination date`) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE TREATMENT_MED ADD FOREIGN KEY(Med_Code) REFERENCES MEDICATION(Med_Code);
-ALTER TABLE TREATMENT_MED ADD FOREIGN KEY(Doc_Code, IP_Code,`Start date`, `End date`) REFERENCES TREATMENT_DETAIL(Doc_Code, IP_Code,`Start date`, `End date`) ON UPDATE CASCADE;
+ALTER TABLE TREATMENT_MED ADD FOREIGN KEY(Doc_Code, IP_Code,`Start date`, `End date`) REFERENCES TREATMENT_DETAIL(Doc_Code, IP_Code,`Start date`, `End date`) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE PROVIDE ADD FOREIGN KEY(Med_code) REFERENCES MEDICATION(Med_Code);
 ALTER TABLE PROVIDE ADD FOREIGN KEY(Provider_num) REFERENCES PROVIDER(Provider_num);

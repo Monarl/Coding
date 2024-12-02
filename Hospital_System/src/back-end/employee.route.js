@@ -5,6 +5,7 @@ import {db} from "./index.js"
 
 // Load environment variables
 dotenv.config({ path: 'D:/HK241/Hospital/Coding/Hospital_System/Login_secret_key.env' });
+dotenv.config({ path: 'D:/HK241/Hospital/Coding/Hospital_System/Login_secret_key.env' });
 
 const router = express.Router();
 

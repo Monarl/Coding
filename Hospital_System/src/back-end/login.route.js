@@ -45,7 +45,7 @@ router.post('/auth', (req, res) => {
             bcrypt.hash(password, 10, (err, hash) => {
                 if (err) return res.status(500).json({ message: 'Error hashing password' });
 
-                const newUser = { User_Code: 'new_code', Email: email, Password: hash, Role: 'User' };
+                const newUser = {Email: email, Password: hash, Role: 'Employee' };
                 db.query('INSERT INTO USER SET ?', newUser, (err) => {
                     if (err) return res.status(500).json({ message: 'Error saving user' });
 
