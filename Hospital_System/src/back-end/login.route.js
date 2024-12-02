@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { db } from "./index.js";
 import dotenv from 'dotenv';
-dotenv.config({ path: 'D:/HK241/Hospital/Coding/Hospital_System/Login_secret_key.env' });
+dotenv.config({ path: 'E:/Coding/Hospital_System/Login_secret_key.env' });
 
 const router = express.Router();
 const jwtSecretKey = process.env['key'];

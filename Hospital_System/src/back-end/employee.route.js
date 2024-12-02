@@ -78,15 +78,14 @@ router.get('/employee-list', (req, res) => {
         SET 
           F_name = ?, 
           L_name = ?, 
-          Phone_num = ?, 
+          Phone_number = ?, 
           Gender = ?, 
           Dob = ?, 
           Address = ?, 
           Start_date = ?, 
           Dept_Code = ?, 
           Specialty_Name = ?, 
-          Position = ?
-          Degree_year = ?, 
+          Degree_year = ? 
         WHERE 
           Emp_Code = ?;
       `;
@@ -94,14 +93,13 @@ router.get('/employee-list', (req, res) => {
       const values = [
         updatedEmployee.F_name,
         updatedEmployee.L_name,
-        updatedEmployee.Phone_num,
+        updatedEmployee.Phone_number,
         updatedEmployee.Gender,
         adjustDate(updatedEmployee.Dob),
         updatedEmployee.Address,
         adjustDate(updatedEmployee.Start_date),
         updatedEmployee.Dept_Code,
         updatedEmployee.Specialty_Name,
-        updatedEmployee.Position,
         updatedEmployee.Degree_year,
         // Thêm trường Position
         updatedEmployee.id,       // Employee code (primary key)
