@@ -70,72 +70,32 @@ router.get('/employee-list', (req, res) => {
         return res.status(400).send('Invalid employee data');
     }
 
-    // Bắt đầu giao dịch
-    db.beginTransaction((err) => {
+    // Chuẩn bị giá trị truyền vào
+    const values = [
+        updatedEmployee.id, // Emp_Code
+        updatedEmployee.F_name,
+        updatedEmployee.L_name,
+        updatedEmployee.Phone_num,
+        updatedEmployee.Gender,
+        adjustDate(updatedEmployee.Dob),
+        updatedEmployee.Address,
+        adjustDate(updatedEmployee.Start_date),
+        updatedEmployee.Dept_Code,
+        updatedEmployee.Specialty_Name,
+        updatedEmployee.Degree_year,
+        updatedEmployee.Working
+    ];
+
+    // Gọi procedure
+    const query = 'CALL UpsertEmployee(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+    db.query(query, values, (err, result) => {
         if (err) {
-            console.error('Transaction initiation error:', err);
-            return res.status(500).send('Failed to initiate transaction');
+            console.error('Procedure Execution Error:', err);
+            return res.status(500).send('Failed to update or insert employee');
         }
-
-        // Câu lệnh SQL
-        const query = `
-             UPDATE EMPLOYEE 
-        SET 
-          F_name = ?, 
-          L_name = ?, 
-          Phone_number = ?, 
-          Gender = ?, 
-          Dob = ?, 
-          Address = ?, 
-          \`Start date\` = ?, 
-          Dept_Code = ?, 
-          \`Specialty Name\` = ?, 
-          \`Degree's year\` = ? 
-        WHERE 
-          Emp_Code = ?;
-        `;
-
-        // Giá trị truyền vào SQL
-        const values = [
-            updatedEmployee.F_name,
-            updatedEmployee.L_name,
-            updatedEmployee.Phone_num,
-            updatedEmployee.Gender,
-            adjustDate(updatedEmployee.Dob),
-            updatedEmployee.Address,
-            adjustDate(updatedEmployee.Start_date),
-            updatedEmployee.Dept_Code,
-            updatedEmployee.Specialty_Name,
-            updatedEmployee.Degree_year,
-            updatedEmployee.id // Khóa chính
-        ];
-
-        // Thực thi câu lệnh SQL
-        db.query(query, values, (err, result) => {
-            if (err) {
-                // Rollback nếu có lỗi
-                return db.rollback(() => {
-                    console.error('SQL Execution Error:', err);
-                    res.status(500).send('Failed to update employee, all changes reverted');
-                });
-            }
-
-            // Commit giao dịch
-            db.commit((commitErr) => {
-                if (commitErr) {
-                    return db.rollback(() => {
-                        console.error('Commit Error:', commitErr);
-                        res.status(500).send('Failed to commit transaction');
-                    });
-                }
-                res.send('Employee updated successfully');
-            });
-        });
+        res.send('Employee upserted successfully');
     });
 });
-
-  
-  
-  
 
   export default router;

@@ -121,6 +121,7 @@ const nurse = employees
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Date of Birth</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Specialty</th>
                     <th className="py-2 px-4 text-left font-semibold text-gray-700">Address</th>
+                    <th className="py-2 px-4 text-left font-semibold text-gray-700">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -134,6 +135,9 @@ const nurse = employees
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{new Date(employee.Dob).toLocaleDateString()}</td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee["Specialty Name"]}</td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.Address}</td>
+                      <td className="py-2 px-4 hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">
+    <strong>{employee.Working}</strong>
+</td>
                      
                      
                     </tr>

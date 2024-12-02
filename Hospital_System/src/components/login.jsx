@@ -36,7 +36,7 @@ const Login = (props) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, employeeId : "" }),
     })
       .then((r) => r.json())
       .then((r) => {

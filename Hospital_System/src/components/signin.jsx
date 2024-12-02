@@ -30,10 +30,11 @@ const Signin = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, employeeId: "123" }),
     })
       .then((r) => r.json())
       .then((r) => {
+        console.log(r.message)
         if ('success' === r.message) {
           console.log(r.message)
         } else {

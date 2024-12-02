@@ -58,8 +58,45 @@ const Employee_info = (props) => {
         Dept_Code: '',
         Specialty_Name: '',
         Degree_year:'',
+        Working:'',
         id: '',
     });
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
+    const checkAccountExists = (callback) => {
+        fetch('http://localhost:8000/login/check-account', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        })
+          .then((r) => r.json())
+          .then((r) => {
+            callback(r?.userExists)
+          })
+      }
+    
+      const logIn = () => {
+        fetch('http://localhost:8000/login/auth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password, employeeId }),
+        })
+          .then((r) => r.json())
+          .then((r) => {
+            if ('success' === r.message) {
+              console.log(r.message)
+            } else {
+              window.alert('Wrong email or password')
+            }
+          })
+      }
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
@@ -120,6 +157,7 @@ const Employee_info = (props) => {
                     Dept_Code: data[0]?.Dept_Code || '',
                     Specialty_Name: data[0]?.['Specialty Name'] || '',
                     Degree_year: data[0]?.['Degree\'s year'] || '',
+                    Working: data[0]?.Working || '',
                     id: employeeId || '',
                 });
 
@@ -154,6 +192,61 @@ const Employee_info = (props) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(employees)
+    if (!inserted) {
+        fetch(`http://localhost:8000/employees/employee-update`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ employeeData, employees }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.json().then((error) => {
+                        throw new Error(`Error: ${error.message}`);
+                    });
+                }
+                setEdited(!edited);
+                if (inserted) navigate('/employees');
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.error('Submit Error:', error);
+            });
+    }
+    setEmailError('')
+    setPasswordError('')
+  
+    // Check if the user has entered both fields correctly
+    if ('' === email) {
+      setEmailError('Please enter your email!')
+      return
+    }
+  
+    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      setEmailError('Please enter a valid email!')
+      return
+    }
+  
+    if ('' === password) {
+      setPasswordError('Please enter a password!')
+      return
+    }
+  
+    if (password.length < 7) {
+      setPasswordError('The password must be 8 characters or longer!')
+      return
+    }
+
+    checkAccountExists((accountExists) => {
+      // If yes, 
+      if (accountExists) {
+        alert('An account already exist with this email address: ' + email)
+        return
+      }
+      //Else, ask user if they want to create a new account and if yes, then log in
+      else {
+        logIn()
         // Log dữ liệu đang được gửi
     // console.log('Submitting Data:', { employeeData, employees });
     fetch(`http://localhost:8000/employees/employee-update`, {
@@ -176,6 +269,8 @@ const Employee_info = (props) => {
         .catch((error) => {
             console.error('Submit Error:', error);
         });
+    }
+    })
 };
 
 
@@ -335,7 +430,7 @@ const Employee_info = (props) => {
   </select>
 </div>
 
-                        <div className='col-span-6'>
+                        <div className='md:col-span-3 col-span-6'>
                             <span>+ Phone number: </span>
                             <input
                                 type='tel'
@@ -348,6 +443,26 @@ const Employee_info = (props) => {
                                 className='bg-slate-100 rounded-2xl px-2'
                             />
                         </div>
+                        <div className='md:col-span-3 col-span-6'>
+                        <span>
+                            + Status: 
+                            {edited === false && (
+                            <span style={{ color: 'red' }}>* </span>
+                            )}
+                        </span>
+                        <select
+                            name="Working"
+                            value={employeeData.Working || ""}
+                            onChange={handleChange}
+                            disabled={edited}
+                            required={!edited}
+                            className='bg-slate-100 rounded-2xl px-2 disabled:bg-white'
+                        >
+                            <option value="" disabled>Select Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Resigned">Resigned</option>
+                        </select>
+                        </div>
                         <div className='col-span-6'>
                             <span>+ Address: </span>
                             <textarea
@@ -359,7 +474,33 @@ const Employee_info = (props) => {
                                 rows={3}  // Adjust the rows based on how many lines you want visible initially
                             />
                         </div>
-                       
+                        {inserted ? (
+                        <>
+                            <div className="col-span-3">
+                            <span>+ Email: </span>
+                            <input
+                                type="search"
+                                value={email}
+                                placeholder="Enter your email here"
+                                onChange={(ev) => setEmail(ev.target.value)}
+                                className="bg-slate-100 rounded-2xl px-2"
+                            />
+                            {emailError && <label className="text-red-500 text-sm mt-2">{emailError}</label>}
+                            </div>
+
+                            <div className="col-span-3">
+                            <span>+ Password: </span>
+                            <input
+                                type="password"
+                                value={password}
+                                placeholder="Enter your password here"
+                                onChange={(ev) => setPassword(ev.target.value)}
+                                className="bg-slate-100 rounded-2xl px-2"
+                            />
+                            {passwordError && <label className="text-red-500 text-sm mt-2">{passwordError}</label>}
+                            </div>
+                        </>
+                        ) : null}
                     </div>
                 </div>
 

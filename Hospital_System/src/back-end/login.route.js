@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { db } from "./index.js";
 import dotenv from 'dotenv';
-dotenv.config({ path: 'E:/Coding/Hospital_System/Login_secret_key.env' });
+dotenv.config({ path: "../../Login_secret_key.env" });
 
 const router = express.Router();
 const jwtSecretKey = process.env['key'];
@@ -13,16 +13,25 @@ router.get('/', (_req, res) => {
 });
 
 router.post('/auth', (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, employeeId } = req.body;
 
     // Query the user from MySQL without Promises
-    db.query('SELECT * FROM USER WHERE Email = ?', [email], (err, results) => {
+    db.query(`SELECT USER.*, EMPLOYEE.* 
+              FROM USER 
+              LEFT JOIN EMPLOYEE 
+              ON 
+                EMPLOYEE.Emp_Code = USER.User_Code 
+              WHERE 
+                USER.Email = ?`, [email], (err, results) => {
         if (err) {
             return res.status(500).json({ message: 'Database error' });
         }
         
+        console.log(results)
         const user = results[0];
         if (user) {
+            if (user.Working == 'Resigned')
+                return res.status(401).json({ message: 'Invalid password' })
             // Compare password
             bcrypt.compare(password, user.Password, (err, result) => {
                 if (err || !result) {
@@ -45,7 +54,8 @@ router.post('/auth', (req, res) => {
             bcrypt.hash(password, 10, (err, hash) => {
                 if (err) return res.status(500).json({ message: 'Error hashing password' });
 
-                const newUser = {Email: email, Password: hash, Role: 'Employee' };
+                const newUser = {User_Code: employeeId, Email: email, Password: hash, Role: 'Employee' };
+                console.log(newUser)
                 db.query('INSERT INTO USER SET ?', newUser, (err) => {
                     if (err) return res.status(500).json({ message: 'Error saving user' });
 
