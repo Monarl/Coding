@@ -11,7 +11,6 @@ const Provider_info = (props)=>{
     const [disableEdit, setDisableEdit] = useState(true); // To allow edit form; True: not allowed to edit
     const [providers, setProviders] = useState([]);
     const [medications, setMedications] = useState([]);        // list of all med
-    const [allMedProvide, setAllMedProvide] = useState([]);        // list of all med of this provider
     const [iniMedProvides, setIniMedProvides] = useState([]);        // list of all med for handling changes
 
     const queryParams = new URLSearchParams(location.search); // Read query parameters
@@ -78,7 +77,6 @@ const Provider_info = (props)=>{
             }
             const data = await response.json();
             console.log(data);
-            setAllMedProvide(data);
             setIniMedProvides(data);
         }
         catch (error) { 
@@ -99,13 +97,27 @@ const Provider_info = (props)=>{
 
     const handleSubmit = async(e) =>{ ///for handel submit and send data to backend
         e.preventDefault();
+
+        let isGood = true;
+        //get submit info
         const formData = new FormData(e.currentTarget);
         const P_Name = formData.get('new_P_Name')? formData.get('new_P_Name'):providers[0].P_Name;
         const Phone = formData.get('new_Phone') ? formData.get('new_Phone') : providers[0].Phone;
         const Address = formData.get('new_Address')? formData.get('new_Address'): providers[0].Address;
-        const payLoad = { P_Name, Phone, Address, Provider_num};
-        await handleTable();
+        
+        //get info in the table
+        const listMedications = []; 
+        medications.forEach((medication) => { if (formData.get(medication.Med_Code.toString()) === "on") { 
+            listMedications.push(medication.Med_Code); 
+        }});
+        if (listMedications.length === 0) {
+            alert("Provider must provide at least a medication.");
+            return;
+        }
+
+        //add new provider to db
         try{
+            const payLoad = { P_Name, Phone, Address, Provider_num};
             const response = await fetch('http://localhost:8000/providers/update',{
                 method:'PUT',
                 headers:{
@@ -116,15 +128,67 @@ const Provider_info = (props)=>{
             if (response.ok) {
                 const data = await response.json();
                 console.log('Provider updated successfully:', data);
-                navigate('/providers/');
             } else{
                 const errorData = await response.json();
                 console.error('Failed to update provider:', errorData);
                 alert("Provider updated Fail");
+                isGood= false;
             }
         } catch (err){
             setError(err.message);
+            isGood= false;
         }
+
+        //set provide relationship
+        const addList = listMedications.filter(item => !iniMedProvides.some( medProvide => medProvide.Med_code === item));           //list of row need to add into the database (in tem list but not in initial list)
+        const deleteList = iniMedProvides.filter(item => !listMedications.includes(item.Med_code));        //list of row need to delete into the database (in initial list but not tem list)
+        if ( addList.length != 0) try{
+            const payLoad = addList.map(Med_Code => [Med_Code,Provider_num])
+            const response = await fetch('http://localhost:8000/medications/addListProvider',{               //adding 
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Provide relation add successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to add Provide relation:', errorData);
+                alert("Provide relation add Fail");
+                isGood = false;
+            }
+        } catch (err){
+            setError(err.message);
+            isGood = false;
+        }
+
+        if (deleteList.length != 0) try{
+            const payLoad = deleteList.map(medication => [medication.Med_code,Provider_num])
+            console.log("payload del:",payLoad);
+            const response = await fetch('http://localhost:8000/medications/deleteListProvider',{               //deleting 
+                method:'DELETE',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Provide relation delete successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to delete Provide relation:', errorData);
+                alert("Provide relation delete Fail");
+                isGood = false;
+            }
+        } catch (err){
+            setError(err.message);
+            isGood = false;
+        }
+        if (isGood) {navigate(-1);}
     };
 
     const handelDelete = async()=>{                 ///for send delete order to background
@@ -174,20 +238,9 @@ const Provider_info = (props)=>{
         }
     }
 
-    const handleCheckbox = (checked, Med_code) =>{    //handle changes when checking check box
-        if (checked){
-            if (!allMedProvide.some( medProvide => medProvide.Med_code === Med_code))   //if tem list dont have the item got checked then add it
-                setAllMedProvide([...allMedProvide, {Med_code: Med_code}]);
-        } else{
-            if (allMedProvide.some( medProvide => medProvide.Med_code === Med_code))   //if tem list have the item got unchecked then delete it
-                setAllMedProvide(allMedProvide.filter(med => med.Med_code !== Med_code));
-        }
-        console.log(allMedProvide);
-    }
-
     const handleTable = async() =>{ //handle changes in the relation  ship of med and providers
-        const addList = allMedProvide.filter(item => !iniMedProvides.includes(item));           //list of row need to add into the database (in tem list but not in initial list)
-        const deleteList = iniMedProvides.filter(item => !allMedProvide.includes(item));        //list of row need to delete into the database (in initial list but not tem list)
+        const addList = iniMedProvides.filter(item => !iniMedProvides.includes(item));           //list of row need to add into the database (in tem list but not in initial list)
+        const deleteList = iniMedProvides.filter(item => !iniMedProvides.includes(item));        //list of row need to delete into the database (in initial list but not tem list)
         if ( addList.length != 0) try{
             const payLoad = addList.map(medProvide => [medProvide.Med_code,Provider_num])
             const response = await fetch('http://localhost:8000/medications/addListProvider',{               //adding 
@@ -324,7 +377,7 @@ const Provider_info = (props)=>{
                             </thead>
                             {disableEdit ? 
                             <tbody>
-                            {medications.map((medication,index)=> allMedProvide.some( medProvide => medProvide.Med_code === medication.Med_Code) ? 
+                            {medications.map((medication,index)=> iniMedProvides.some( medProvide => medProvide.Med_code === medication.Med_Code) ? 
                                 <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
                                         <td className="">{medication.Med_Code}</td>
                                         <td className="">{medication.Med_Name}</td>
@@ -344,8 +397,8 @@ const Provider_info = (props)=>{
                                         <td className=""> 
                                             <input className='h-6 w-6 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-50' 
                                             type='checkbox'
-                                            onChange={ (e) =>handleCheckbox(e.currentTarget.checked, medication.Med_Code)}
-                                            defaultChecked = {allMedProvide.some( medProvide => medProvide.Med_code === medication.Med_Code)}
+                                            name={medication.Med_Code.toString()}
+                                            defaultChecked = {iniMedProvides.some( medProvide => medProvide.Med_code === medication.Med_Code)}
                                             /></td>
                                 </tr>
                             )}</tbody>}

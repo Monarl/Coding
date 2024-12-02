@@ -6,7 +6,6 @@ import {useNavigate } from 'react-router-dom'
 const Add_medication = (props)=>{
     const navigate = useNavigate();
     const [providers, setProviders] = useState([]);        // list of all provider
-    const [medProviders, setMedProviders] = useState([]);        // list of all provider of this med
 
     //#region start up
     useEffect(() => {                                   //checking authenthication
@@ -52,14 +51,29 @@ const Add_medication = (props)=>{
 
     const handleSubmit = async(e) =>{                        //handle submit
         e.preventDefault();
+
+        let isGood = true;
+        let Med_Code = 0;
+        //get submit info
         const formData = new FormData(e.currentTarget);
         const Med_Name = formData.get("Med_Name"); 
         const Price = formData.get("Price"); 
         const Expiration_date = formData.get("Expiration-Date"); 
         const Effects = formData.get("Effects");    // Prepare the payload 
-        const payload = { Med_Name, Price, Expiration_date, Effects};
-        await handleTable();
+
+        // get providers
+        const listProviders = []; 
+        providers.forEach((provider) => { if (formData.get(provider.Provider_num.toString()) === "on") { 
+            listProviders.push(provider.Provider_num); 
+        }});
+        if (listProviders.length === 0) {
+            alert("Medication must have atleast a provider.");
+            return;
+        }
+            
+        //send data to db
         try{
+            const payload = { Med_Name, Price, Expiration_date, Effects};
             const response = await fetch('http://localhost:8000/medications/add-to-db',{
                 method: 'POST',
                 headers: {
@@ -70,28 +84,30 @@ const Add_medication = (props)=>{
             if (response.ok) {
                 const data = await response.json();
                 console.log('Medication added successfully:', data);
-                navigate('/medications/');
+                Med_Code = data.insertId;
+                console.log('Medication code:', Med_Code);
             } else{
                 const errorData = await response.json();
                 console.error('Failed to add medication:', errorData);
                 alert("Medication added Fail");
+                isGood = false;
             }
         } catch (error){
             console.error(error);
+            isGood = false;
         }
-    }
-
-    const handleTable = async() =>{ //handle changes in the relation  ship of med and providers
-        const addList = medProviders;           //list of row need to add into the database (in tem list but not in initial list)
-        if ( addList.length != 0) try{
-            const payLoad = addList.map(provider => [MedID,provider.Provider_num])
-            const response = await fetch('http://localhost:8000/medications/addListProvider',{               //adding 
-                method:'POST',
-                headers:{
-                    'Content-Type':'application/json'
+        
+        //set relationship with providers
+        try{
+            const payLoad = listProviders.map(Provider_num => [Med_Code,Provider_num])
+            console.log(payLoad);
+            const response = await fetch('http://localhost:8000/medications/addListProvider',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payLoad),
-            })
+            });
             if (response.ok) {
                 const data = await response.json();
                 console.log('Provide relation add successfully:', data);
@@ -99,20 +115,13 @@ const Add_medication = (props)=>{
                 const errorData = await response.json();
                 console.error('Failed to add Provide relation:', errorData);
                 alert("Provide relation add Fail");
+                isGood = false;
             }
-        } catch (err){
-            setError(err.message);
+        } catch (error){
+            console.error(error);
+            isGood = false;
         }
-    }
-
-    const handleCheckbox = (checked, Provider_num) =>{    //handle changes when checking check box
-        if (checked){
-            if (!medProviders.some( medProvider => medProvider.Provider_num === Provider_num))   //if tem list dont have the item got checked then add it
-                setMedProviders([...medProviders, {Provider_num: Provider_num}]);
-        } else{
-            if (medProviders.some( medProvider => medProvider.Provider_num === Provider_num))   //if tem list have the item got unchecked then delete it
-                setMedProviders(medProviders.filter(provider => provider.Provider_num !== Provider_num));
-        }
+        if (isGood) {navigate(-1);}
     }
 
     //#endregion
@@ -163,42 +172,41 @@ const Add_medication = (props)=>{
     );  
     }
 
-        const ProviderTable = () => {
-        return (
-            <div className='justify-center flex'> {/* Provider Table design */}
-                    <div className="overflow-x-auto p-3 w-5/6">
-                        <h1 className="text-2xl font-bold my-4">Provider</h1>
+    const ProviderTable = () => {
+    return (
+        <div className='justify-center flex'> {/* Provider Table design */}
+                <div className="overflow-x-auto p-3 w-5/6">
+                    <h1 className="text-2xl font-bold my-4">Provider</h1>
 
-                        <table className="table-auto text-lg min-w-full bg-white border border-gray-300">
-                            <thead className="bg-gray-100 border-b">
-                                <tr className='*:py-2 *:px-4 *:text-center *:border-x-2 *:font-semibold *:text-gray-700 '>
-                                    <th className="">Provider Number</th>
-                                    <th className="">Provider Name</th>
-                                    <th className="">Phone</th>
-                                    <th className="">Address</th>
-                                    <th className="">Include</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {providers.map((provider,index)=>
-                                <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
-                                        <td className="">{provider.Provider_num}</td>
-                                        <td className="">{provider.P_Name}</td>
-                                        <td className="">{provider.Phone}</td>
-                                        <td className=""> {provider.Address}</td>
-                                        <td className=""> 
-                                            <input className='h-6 w-6 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-50' 
-                                            type='checkbox'
-                                            onChange={ (e) =>handleCheckbox(e.currentTarget.checked, provider.Provider_num)}
-                                            defaultChecked = {medProviders.some( medProvider => medProvider.Provider_num === provider.Provider_num)}
-                                            /></td>
-                                </tr>
-                            )}</tbody>
-                        </table>
-                    </div>
+                    <table className="table-auto text-lg min-w-full bg-white border border-gray-300">
+                        <thead className="bg-gray-100 border-b">
+                            <tr className='*:py-2 *:px-4 *:text-center *:border-x-2 *:font-semibold *:text-gray-700 '>
+                                <th className="">Provider Number</th>
+                                <th className="">Provider Name</th>
+                                <th className="">Phone</th>
+                                <th className="">Address</th>
+                                <th className="">Include</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {providers.map((provider,index)=>
+                            <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
+                                    <td className="">{provider.Provider_num}</td>
+                                    <td className="">{provider.P_Name}</td>
+                                    <td className="">{provider.Phone}</td>
+                                    <td className=""> {provider.Address}</td>
+                                    <td className=""> 
+                                        <input className='h-6 w-6 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-50' 
+                                        type='checkbox'
+                                        name={provider.Provider_num.toString()}
+                                        /></td>
+                            </tr>
+                        )}</tbody>
+                    </table>
                 </div>
-        );
-    }
+            </div>
+    );
+}
     
     //#endregion
 

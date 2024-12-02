@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import {db} from "./index.js"
 
 // Load environment variables
-dotenv.config({ path: 'C:/Users/AORUS/source/repos/BTL_DB/Coding/Hospital_System/Login_secret_key.env' });
+dotenv.config({ path: '../../Login_secret_key.env' });
 
 const router = express.Router();
 
