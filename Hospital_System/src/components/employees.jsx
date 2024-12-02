@@ -61,36 +61,6 @@ const nurse = employees
   };
 
 
-
-    const doctor = employees
-  .filter(employee => employee.Emp_Code.startsWith('D'))
-  .map(employee => Number(employee.Emp_Code.slice(1)))
-  .sort((a, b) => a - b); // Sắp xếp tăng dần
-
-const nurse = employees
-  .filter(employee => employee.Emp_Code.startsWith('N'))
-  .map(employee => Number(employee.Emp_Code.slice(1)))
-  .sort((a, b) => a - b); // Sắp xếp tăng dần
-
-
-  const findFirstGap = (arr) => {
-    if (!Array.isArray(arr) || arr.length === 0) {
-      return String(1).padStart(3, '0'); // Trả về '001' cho mảng rỗng
-    }
-  
-    arr.sort((a, b) => a - b); // Sắp xếp lại mảng
-  
-    for (let i = 0; i < arr.length; i++) {
-      const nextExpected = i + 1; // Giá trị mong đợi
-      if (arr[i] !== nextExpected) {
-        return String(nextExpected).padStart(3, '0'); // Trả về giá trị bị thiếu
-      }
-    }
-    return String(arr.length + 1).padStart(3, '0'); // Không có khoảng trống, trả về giá trị tiếp theo
-  };
-
-
-
     const getEmployees = () => {
       fetch('http://localhost:8000/employees/employee-list')
       .then((response) => {
@@ -111,7 +81,6 @@ const nurse = employees
     const handleSubmit = (event) => {
       event.preventDefault();
       fetch(`http://localhost:8000/employees/employee-search?search=${search}`)
-      fetch(`http://localhost:8000/employees/employee-search?search=${search}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -122,11 +91,9 @@ const nurse = employees
         console.log(data)
         setEmployees(data); // Store the fetched data in state
         setLoading(false);
-        setLoading(false);
       })
       .catch((error) => {
         setError(error.message); // Catch and display any errors
-        setLoading(false);
         setLoading(false);
       });
     };
@@ -162,7 +129,6 @@ const nurse = employees
                     <tr key={index} className="border-b hover:bg-blue-300">
                       <td className="py-2 px-4 underline hover:bg-blue-600 hover:text-red-600 hover:font-semibold hover:bg-opacity-70">
                         <Link to={`/employees/employee?id=${employee.Emp_Code}`}>{employee.Emp_Code}</Link></td>
-                        <Link to={`/employees/employee?id=${employee.Emp_Code}`}>{employee.Emp_Code}</Link></td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.F_name}</td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.L_name}</td>
                       <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{employee.Gender}</td>
@@ -174,21 +140,15 @@ const nurse = employees
                     </tr>
                   ))}
                   <tr className="border-b hover:bg-blue-300">
-                  <tr className="border-b hover:bg-blue-300">
                     <td colSpan="1" className="py-2 px-4 underline hover:bg-blue-600 hover:text-red-600 hover:font-semibold hover:bg-opacity-70">
                       <Link to={`/employees/employee?id=${"D" + findFirstGap(doctor)}&insert=${true}`}>{"D" + findFirstGap(doctor)}</Link></td>
-                      <Link to={`/employees/employee?id=${"D" + findFirstGap(doctor)}&insert=${true}`}>{"D" + findFirstGap(doctor)}</Link></td>
                     <td colSpan="5" className='py-2 px-4 font-semibold hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70'>
-                      <span>Insert new doctor</span></td>
                       <span>Insert new doctor</span></td>
                   </tr>
                   <tr className="border-b hover:bg-blue-300">
                     <td colSpan="1" className="py-2 px-4 underline hover:bg-blue-600 hover:text-red-600 hover:font-semibold hover:bg-opacity-70">
                     <Link to={`/employees/employee?id=${"N" + findFirstGap(nurse)}&insert=${true}`}>{"N" + findFirstGap(nurse)}</Link></td>
-                    <Link to={`/employees/employee?id=${"N" + findFirstGap(nurse)}&insert=${true}`}>{"N" + findFirstGap(nurse)}</Link></td>
                     <td colSpan="5" className='py-2 px-4 font-semibold hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70'>
-                      <span>Insert new nurse</span></td>
-                  </tr>
                       <span>Insert new nurse</span></td>
                   </tr>
                 </tbody>
