@@ -13,6 +13,7 @@ import Add_provider from './components/provder/add_provider.jsx'
 import { useEffect, useState } from 'react'
 import Provider_info from './components/provder/provider_info.jsx'
 import Mainpage from './components/mainpage.jsx'
+import Signin from './components/signin.jsx'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -64,6 +65,8 @@ function App() {
             element={<Mainpage loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
           />
           <Route path="/login" element={<Login setLoggedIn={setLoggedIn} setEmail={setEmail} loggedIn = {loggedIn} />} />
+          <Route path="/signin" element={<Signin setLoggedIn={setLoggedIn} setEmail={setEmail} loggedIn = {loggedIn} />} />
+
           <Route 
             path='/patients' 
             element={<Patients loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
