@@ -5,6 +5,7 @@ import Navbar from './navbar';
 
 const MainPage = (props) => {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -25,7 +26,7 @@ const MainPage = (props) => {
   }, [navigate, props]);
 
   return (
-    <div className="w-screen h-screen">
+    <div className="w-screen h-screen pb-10">
       <Navbar loggedIn={props.loggedIn} setLoggedIn={props.setLoggedIn} />
   
       <div className="flex justify-center m-auto mt-10 w-5/6 h-5/6 p-6 bg-gray-200 rounded-lg bg-opacity-80 shadow-md">
@@ -48,21 +49,23 @@ const MainPage = (props) => {
           </button>
   
           {/* Employee Button */}
-          <button
-            className="aspect-square min-w-[75%] max-h-[100%] m-auto font-bkel transition-all duration-500 
-                       hover:scale-105 hover:font-bold rounded-lg overflow-hidden"
-            onClick={() => navigate('/employees')}
-          >
-            <div className="flex flex-col items-center justify-center h-full w-full">
-              <div className="flex items-center justify-center w-full h-1/2 bg-blue-600 text-white text-[5vw] md:text-[3vw]">
-                👨‍⚕️
-              </div>
-              <div className="w-full h-0.5 bg-gray-400"></div>
-              <div className="flex items-center justify-center w-full h-1/2 bg-white text-gray-800 text-[3vw] md:text-[1.5vw]">
-                Employees
-              </div>
-            </div>
-          </button>
+          {user?.Role !== 'Employee' && (
+            <button
+                className="aspect-square min-w-[75%] max-h-[100%] m-auto font-bkel transition-all duration-500 
+                        hover:scale-105 hover:font-bold rounded-lg overflow-hidden"
+                onClick={() => navigate('/employees')}
+            >
+                <div className="flex flex-col items-center justify-center h-full w-full">
+                <div className="flex items-center justify-center w-full h-1/2 bg-blue-600 text-white text-[5vw] md:text-[3vw]">
+                    👨‍⚕️
+                </div>
+                <div className="w-full h-0.5 bg-gray-400"></div>
+                <div className="flex items-center justify-center w-full h-1/2 bg-white text-gray-800 text-[3vw] md:text-[1.5vw]">
+                    Employees
+                </div>
+                </div>
+            </button>
+            )}
   
           {/* Medications Button */}
           <button

@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 const employees = (props) => {
     const navigate = useNavigate();
     const [employees, setEmployees] = useState([]); //Get employees info from backend
+    const [originalEmployees, setOriginalEmployees] = useState([]); //Get original employees info from backend
     const [search, setSearch] = useState(""); // Store searchbar value
     const [error, setError] = useState(null);
 
@@ -33,12 +34,12 @@ const employees = (props) => {
       getEmployees();
     }, []);
 
-    const doctor = employees
+    const doctor = originalEmployees
   .filter(employee => employee.Emp_Code.startsWith('D'))
   .map(employee => Number(employee.Emp_Code.slice(1)))
   .sort((a, b) => a - b); // Sắp xếp tăng dần
 
-const nurse = employees
+const nurse = originalEmployees
   .filter(employee => employee.Emp_Code.startsWith('N'))
   .map(employee => Number(employee.Emp_Code.slice(1)))
   .sort((a, b) => a - b); // Sắp xếp tăng dần
@@ -72,6 +73,7 @@ const nurse = employees
       .then((data) => {
         console.log(data)
         setEmployees(data); // Store the fetched data in state
+        setOriginalEmployees(data); // Store the fetched data in state
       })
       .catch((error) => {
         setError(error.message); // Catch and display any errors

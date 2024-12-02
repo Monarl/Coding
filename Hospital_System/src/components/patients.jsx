@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 const patients = (props) => {
   const navigate = useNavigate();
   const [medications, setMedications] = useState([]); //Get Patient info from backend
+  const [original, setOriginal] = useState([]);
   const [search, setSearch] = useState(""); // Store searchbar value
   const [error, setError] = useState(null);
 
@@ -32,11 +33,11 @@ const patients = (props) => {
     getMedication();
   }, []);
 
-  const ipPatients = medications
+  const ipPatients = original
   .filter(patient => patient.Patient_Code.startsWith('IP')) // Filter for 'IP' codes
   .map(patient => Number(patient.Patient_Code.slice(2))); // Remove the 'IP' prefix and convert to number
 
-  const opPatients = medications
+  const opPatients = original
   .filter(patient => patient.Patient_Code.startsWith('OP')) // Filter for 'OP' codes
   .map(patient => Number(patient.Patient_Code.slice(2))); // Remove the 'OP' prefix and convert to number
 
@@ -68,6 +69,7 @@ const patients = (props) => {
     .then((data) => {
       console.log(data)
       setMedications(data); // Store the fetched data in state
+      setOriginal(data); // Store a copy of the original data for later comparison
     })
     .catch((error) => {
       setError(error.message); // Catch and display any errors
