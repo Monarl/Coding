@@ -15,6 +15,9 @@ import Provider_info from './components/provder/provider_info.jsx'
 import Mainpage from './components/mainpage.jsx'
 import Signin from './components/signin.jsx'
 import Employee_info from './components/employee-info.jsx'
+import Departments from './components/department/departments.jsx'
+import Add_department from './components/department/add_department.jsx'
+import Department_info from './components/department/department_info.jsx'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -115,6 +118,18 @@ function App() {
           <Route 
             path='/providers/provider_info' 
             element={<Provider_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/departments' 
+            element={<Departments loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/departments/add_department' 
+            element={<Add_department loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
+          />
+          <Route 
+            path='/departments/info' 
+            element={<Department_info loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>}
           />
         </Routes>
       </BrowserRouter>

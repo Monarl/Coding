@@ -81,7 +81,7 @@ const Medications = (props)=>{
         <h1 className="text-2xl font-bold mb-4">Medication List</h1>
         <form onKeyUp={handleSearch}><input type='search'
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search for patient's name" 
+            placeholder="Search for medication's name" 
             className='mb-5 inline border-2 border-black placeholder-slate-400 p-2 min-w-[30vw]'/></form> {/*Search bar */}
         </div>
         <div className="overflow-x-auto"> {/*Table design */}

@@ -190,7 +190,7 @@ const Medication_info = (props)=>{
             setError(err.message);
             isGood = false;
         }
-        if (isGood) {navigate(-1);}
+        if (isGood) {navigate('/medications');}
     };
 
 
