@@ -93,7 +93,7 @@ router.get('/employee-list', (req, res) => {
       const values = [
         updatedEmployee.F_name,
         updatedEmployee.L_name,
-        updatedEmployee.Phone_number,
+        updatedEmployee.Phone_num,
         updatedEmployee.Gender,
         adjustDate(updatedEmployee.Dob),
         updatedEmployee.Address,
