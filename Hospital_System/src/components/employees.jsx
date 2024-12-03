@@ -10,7 +10,7 @@ const employees = (props) => {
     const [originalEmployees, setOriginalEmployees] = useState([]); //Get original employees info from backend
     const [search, setSearch] = useState(""); // Store searchbar value
     const [error, setError] = useState(null);
-
+    const user = JSON.parse(localStorage.getItem('user'))
 
     useEffect(() => {
       const user = JSON.parse(localStorage.getItem('user'))
@@ -74,6 +74,19 @@ const nurse = originalEmployees
         console.log(data)
         setEmployees(data); // Store the fetched data in state
         setOriginalEmployees(data); // Store the fetched data in state
+        if (user.Role == 'Dean')
+        fetch('http://localhost:8000/employees/dean-employee-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ empCode: user.userCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            setEmployees(data);
+        })
+        .catch(error => console.error('Error:', error));
+        
       })
       .catch((error) => {
         setError(error.message); // Catch and display any errors
@@ -82,22 +95,37 @@ const nurse = originalEmployees
 
     const handleSubmit = (event) => {
       event.preventDefault();
-      fetch(`http://localhost:8000/employees/employee-search?search=${search}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+      if (user.Role == 'Dean') {
+        fetch('http://localhost:8000/employees/dean-employee-list', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ empCode: user.userCode, search })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            setEmployees(data);
+        })
+        .catch(error => console.error('Error:', error));
+      }
+      else {
+        fetch(`http://localhost:8000/employees/employee-search?search=${search}`)
+        .then((response) => {
+            if (!response.ok) {
+            throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data)
+            setEmployees(data); // Store the fetched data in state
+            setLoading(false);
+        })
+        .catch((error) => {
+            setError(error.message); // Catch and display any errors
+            setLoading(false);
+        });
         }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data)
-        setEmployees(data); // Store the fetched data in state
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message); // Catch and display any errors
-        setLoading(false);
-      });
     };
   
 

@@ -25,6 +25,32 @@ router.get('/employee-list', (req, res) => {
     });
   });
 
+  router.post('/dean-employee-list', (req, res) => {
+    const { empCode, search } = req.body;
+    const searchTerm = `%${search || ''}%`; // Allow search to be optional
+
+    const query = `
+        SELECT e.*
+        FROM EMPLOYEE e
+        WHERE e.Dept_Code = (
+            SELECT Dept_Code
+            FROM EMPLOYEE
+            WHERE Emp_Code = ?
+        )
+        AND e.Emp_Code != ?
+        AND (e.F_name LIKE ? OR e.L_name LIKE ? OR e.Emp_Code LIKE ?)
+        ORDER BY e.Emp_Code;
+    `;
+
+    db.query(query, [empCode, empCode, searchTerm, searchTerm, searchTerm], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database error', error: err });
+        }
+        res.status(200).json(results);
+    });
+});
+
+
   router.get('/employee-search', (req, res) => {
     const search = `%${req.query.search}%`
     const sql = `SELECT * FROM EMPLOYEE e 
