@@ -6,6 +6,8 @@ import {useNavigate } from 'react-router-dom'
 const Add_department = (props)=>{
     const navigate = useNavigate();
     const [error, setError] = useState(null);
+    const [employees, setEmployees] = useState([]);
+    const [deans, setDeans] = useState([]);
 
     //#region start up
     useEffect(() => {                                   //checking authenthication
@@ -26,6 +28,39 @@ const Add_department = (props)=>{
         }
     }, [navigate, props]);
 
+    const getEmployees = async() => {                         // get the medication data from databases
+        try { const response = await fetch(`http://localhost:8000/employees/employee-list`); 
+            if (!response.ok) {
+                throw new Error('Network response was not ok'); 
+            }
+            const data = await response.json();
+            console.log(data);
+            setEmployees(data);
+        }
+        catch (error) { 
+            setError(error.message); 
+        }
+    };
+
+    const getDeans = async() => {                         // get the medication data from databases
+        try { const response = await fetch(`http://localhost:8000/departments/get_deans`); 
+            if (!response.ok) {
+                throw new Error('Network response was not ok'); 
+            }
+            const data = await response.json();
+            console.log(data);
+            setDeans(data);
+        }
+        catch (error) { 
+            setError(error.message); 
+        }
+    };
+
+    useEffect(() => {
+        getEmployees();
+        getDeans();
+    }, []);
+
     //#endregion
 
     //#region interaction
@@ -38,7 +73,7 @@ const Add_department = (props)=>{
         }
         const data = await response.json();
         console.log(data);
-        return data.length === 0;
+        return (data.length === 0);
     } catch (error) {
         setError(error.message);
         setLoading(false);
@@ -49,12 +84,18 @@ const Add_department = (props)=>{
 
     const handleSubmit = async(e) =>{                        //handle submit
         e.preventDefault();
+
+        let isGood = true;
         //get submit info
         const formData = new FormData(e.currentTarget);
         const Dept_Code = formData.get("Dept_Code"); 
         const Title = formData.get("Title"); 
+        const Doc_Code = formData.get ("new_Doc_Code_of_Dean");
+        const Experience_year = formData.get("new_Experience");
 
-        if (!checkDept_Code(Dept_Code)) {
+
+        const isDeptCodeValid = await checkDept_Code(Dept_Code);
+        if (!isDeptCodeValid) {
             alert (" Department code has existed.");
             return;
         }
@@ -76,11 +117,39 @@ const Add_department = (props)=>{
                 const errorData = await response.json();
                 console.error('Failed to add department:', errorData);
                 alert("Department added Fail");
+                isGood = false;
             }
         } catch (error){
             console.error(error);
+            isGood = false;
         }
+
+        //add DEAN
+        try{
+            const payload = { Doc_Code , Dept_Code, Experience_year};
+            const response = await fetch('http://localhost:8000/departments/add_dean',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log('DEAN added successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to add DEAN:', errorData);
+                alert("DEAN added Fail");
+                isGood = false;
+            }
+        } catch (error){
+            console.error(error);
+            isGood = false;
+        }
+
         
+        if (isGood) navigate('/departments');
     }
 
     //#endregion
@@ -105,6 +174,34 @@ const Add_department = (props)=>{
                     className='bg-slate-100 rounded-2xl px-2'
                     required
                 />
+            </div>
+
+            {/*Dean */}
+            <div className='md:col-span-3 col-span-6'>
+                <span>+ DEAN: </span>
+                <select
+                    value={employees.Doc_Code}
+                    required
+                    name="new_Doc_Code_of_Dean"
+                    className='bg-slate-100 rounded-2xl px-2'>
+                    <option value="">Select a Doctor</option> {/* Lựa chọn mặc định */}
+                        {employees
+                            .filter(employee => employee.Emp_Code.startsWith('D') && (!deans.some(dean => dean.Doc_Code === employee.Emp_Code)))
+                            .map(doctor =>(
+                            <option key={doctor.Emp_Code} required>{doctor.Emp_Code}</option>
+                        ))}
+                </select>
+            </div>
+            
+            {/*Experience year */}
+            <div className='md:col-span-3 col-span-6'>
+                <span>+ Experience Year: </span>
+                <input
+                    name="new_Experience"
+                    type='number'
+                    required
+                    min={Number(5)}
+                    className='bg-slate-100 rounded-2xl px-2'/>
             </div>
         </div>
         

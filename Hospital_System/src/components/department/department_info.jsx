@@ -9,12 +9,12 @@ const Department_info = (props)=>{
     const navigate = useNavigate();
     const location = useLocation(); // For taking query parameters
     const [disableEdit, setDisableEdit] = useState(true); // To allow edit form; True: not allowed to edit
-    const [medications, setMedications] = useState([]);
-    const [providers, setProviders] = useState([]);        // list of all provider
-    const [iniMedProviders, setIniMedProviders] = useState([]);        // ini list to handle changes
+    const [departments, setDepartments] = useState([]);
+    const [employees, setEmployees] = useState([]);
+    const [deans, setDeans] = useState([]);
 
     const queryParams = new URLSearchParams(location.search); // Read query parameters
-    const MedID = queryParams.get('id');
+    const Dept_Code = queryParams.get('Department_Code');
     const [error, setError] = useState(null);
 
     //#region start up
@@ -37,90 +37,103 @@ const Department_info = (props)=>{
         }
     }, [navigate, props]);
 
-    const getMedications = async() => {                         // get the medication data from databases
-        try { const response = await fetch(`http://localhost:8000/medications/med-search?search=${MedID}`); 
+    const getDepartments = async() => {                         // get the medication data from databases
+        try { const response = await fetch(`http://localhost:8000/departments/search?search=${Dept_Code}`); 
             if (!response.ok) {
                 throw new Error('Network response was not ok'); 
             }
             const data = await response.json();
             console.log(data);
-            setMedications(data);
+            setDepartments(data);
         }
         catch (error) { 
             setError(error.message); 
         }
     };
 
-    const getProviders = () => {                       //get providers data from database
-        fetch('http://localhost:8000/providers/getProviders').then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        }).then((data) => {
-            console.log(data)
-            setProviders(data); // Store the fetched data in state
-        }).catch((error) => {
-            setError(error.message); // Catch and display any errors
-        }); 
-    }
-    
-    const getMedProviders = async () =>{        //get the provider of this med
-        try { const response = await fetch(`http://localhost:8000/medications/providersOfMed?MedID=${MedID}`,{
-            method:'GET',
-            headers:{
-                'Content-Type': 'application/json'
-            },
-        }); 
+    const getEmployees = async() => {                         // get the medication data from databases
+        try { const response = await fetch(`http://localhost:8000/employees/employee-list`); 
             if (!response.ok) {
                 throw new Error('Network response was not ok'); 
             }
             const data = await response.json();
             console.log(data);
-            setIniMedProviders(data);
+            setEmployees(data);
         }
         catch (error) { 
             setError(error.message); 
         }
-    }
+    };
 
-
+    const getDeans = async() => {                         // get the medication data from databases
+        try { const response = await fetch(`http://localhost:8000/departments/get_deans`); 
+            if (!response.ok) {
+                throw new Error('Network response was not ok'); 
+            }
+            const data = await response.json();
+            console.log(data);
+            setDeans(data);
+        }
+        catch (error) { 
+            setError(error.message); 
+        }
+    };
 
     useEffect(() => {
-        getMedications();
-        getProviders();
-        getMedProviders();
+        getDepartments();
+        getEmployees();
+        getDeans();
     }, []);
-
-    
 
     //#endregion
 
     //#region interaction
 
+    const checkDept_Code = async (Dept_Code) => {
+    try {
+        const response = await fetch(`http://localhost:8000/departments/search?search=${Dept_Code}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log(data);
+        return data.length === 0;
+    } catch (error) {
+        setError(error.message);
+        setLoading(false);
+        return false;
+    }
+};
+
     const handleSubmit = async(e) =>{ ///for handel submit and send data to backend
         e.preventDefault();
 
         let isGood = true;
+        const oldDept_Code = departments[0].Dept_Code;
+        const oldDoc_Code = deans.find(dean => dean.Dept_Code === oldDept_Code)["Doc_Code"];
+        const oldExperience = deans.find(dean => dean.Dept_Code === oldDept_Code)["Experience_year"];
         //get submit info
         const formData = new FormData(e.currentTarget);
-        const Med_Name = formData.get('new_Med_Name')? formData.get('new_Med_Name'):medications[0].Med_Name;
-        const Price = formData.get('new_Price') ? formData.get('new_Price') : medications[0].Price;
-        const Expiration_date = formData.get('new_Expiration_date') ? formData.get('new_Expiration_date'): new Date(medications[0].Expiration_date).toISOString().split("T")[0] ;
-        const Effects = formData.get('new_Effects')? formData.get('new_Effects'): medications[0].Effects;
-        const payLoad = { Med_Name, Price, Expiration_date, Effects, MedID};
-
-        // get providers
-        const medProviders = []; 
-        providers.forEach((provider) => { if (formData.get(provider.Provider_num.toString()) === "on") { 
-            medProviders.push(provider.Provider_num); 
-        }});
-        if (medProviders.length === 0) {
-            alert("Medication must have atleast a provider.");
+        const Dept_Code = formData.get('new_Dept_Code')? formData.get('new_Dept_Code'):oldDept_Code;
+        if (formData.get('new_Dept_Code')){
+            if (!checkDept_Code(Dept_Code)) {
+            alert (" Department code has existed.");
             return;
-        }
+        }}
+        const Title = formData.get('new_Title') ? formData.get('new_Title') : departments[0].Title;
+
+        const Doc_Code = formData.get('new_Doc_Code_of_Dean')? formData.get('new_Doc_Code_of_Dean'):oldDoc_Code;
+        if (Doc_Code !== oldDoc_Code){
+            if (!formData.get('new_Experience')) {
+            alert ("Experience is required");
+            return;
+        }}
+        const Experience_year = formData.get('new_Experience')? formData.get('new_Experience'):oldExperience;
+
+        //update dean
         try{
-            const response = await fetch('http://localhost:8000/medications/update',{
+            const payLoad = {Doc_Code, Experience_year, oldDept_Code};
+            const response = await fetch('http://localhost:8000/departments/update_dean',{
                 method:'PUT',
                 headers:{
                     'Content-Type':'application/json'
@@ -129,11 +142,11 @@ const Department_info = (props)=>{
             })
             if (response.ok) {
                 const data = await response.json();
-                console.log('Medication updated successfully:', data);
+                console.log('Dean updated successfully:', data);
             } else{
                 const errorData = await response.json();
-                console.error('Failed to update medication:', errorData);
-                alert("Medication updated Fail");
+                console.error('Failed to update dean:', errorData);
+                alert("Dean updated Fail");
                 isGood = false;
             }
         } catch (err){
@@ -141,13 +154,10 @@ const Department_info = (props)=>{
             isGood = false;
         }
 
-        const addList = medProviders.filter(item => !iniMedProviders.some( medProvider => medProvider.Provider_num === item));           //list of row need to add into the database (in tem list but not in initial list)
-        const deleteList = iniMedProviders.filter(item => !medProviders.includes(item.Provider_num));        //list of row need to delete into the database (in initial list but not tem list)
-        if ( addList.length != 0) try{
-            const payLoad = addList.map(Provider_num => [MedID,Provider_num])
-            console.log("PayLoad add:", payLoad);
-            const response = await fetch('http://localhost:8000/medications/addListProvider',{               //adding 
-                method:'POST',
+        try{
+            const payLoad = {Dept_Code, Title, oldDept_Code};
+            const response = await fetch('http://localhost:8000/departments/update',{
+                method:'PUT',
                 headers:{
                     'Content-Type':'application/json'
                 },
@@ -155,11 +165,11 @@ const Department_info = (props)=>{
             })
             if (response.ok) {
                 const data = await response.json();
-                console.log('Provide relation add successfully:', data);
+                console.log('Department updated successfully:', data);
             } else{
                 const errorData = await response.json();
-                console.error('Failed to add Provide relation:', errorData);
-                alert("Provide relation add Fail");
+                console.error('Failed to update department:', errorData);
+                alert("Department updated Fail");
                 isGood = false;
             }
         } catch (err){
@@ -167,32 +177,10 @@ const Department_info = (props)=>{
             isGood = false;
         }
 
-        if (deleteList.length != 0) try{
-            const payLoad = deleteList.map(provider => [MedID,provider.Provider_num])
-            console.log("payload del:",payLoad);
-            const response = await fetch('http://localhost:8000/medications/deleteListProvider',{               //deleting 
-                method:'DELETE',
-                headers:{
-                    'Content-Type':'application/json'
-                },
-                body: JSON.stringify(payLoad),
-            })
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Provide relation delete successfully:', data);
-            } else{
-                const errorData = await response.json();
-                console.error('Failed to delete Provide relation:', errorData);
-                alert("Provide relation delete Fail");
-                isGood = false;
-            }
-        } catch (err){
-            setError(err.message);
-            isGood = false;
-        }
-        if (isGood) {navigate(-1);}
+        
+
+        if (isGood) {navigate('/departments');}
     };
-
 
     //#endregion
 
@@ -202,125 +190,172 @@ const Department_info = (props)=>{
         return(<button type='button' onClick={() => setDisableEdit(!disableEdit)} className='col-span-1 col-start-2 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Edit ✏️</button>);
     } 
 
-    const SpacesForMedInfo = () =>{  //the area contains info of medication
+    const DeleteButton = () => {      // the button for deleting
+        return(<button type='button' className='col-span-1 col-start-5 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Delete 🗑️</button>);
+    } 
+
+    const SpacesForDeptInfo = () =>{  //the area contains info of medication
     return (
         <div className='grid grid-cols-6 gap-y-5 mb-4 gap-x-1 col-span-6'>
-            {/*Med Name */}
+            {/*Dept_Code */}
             <div className='md:col-span-3 col-span-6'>
-                <span>+ Medication Name: </span>
-                    {medications.map((medication,index) => <input key={1}
-                        name="Med_Name"
-                        value={medication.Med_Name}
+                <span>+ Department Code: </span>
+                    {departments.map((department,index) => <input key={1}
+                        name="Dept_Code"
+                        value={department.Dept_Code}
                         disabled = {true}
                         className='bg-slate-100 rounded-2xl px-2'/>)}
             </div>
             {(disableEdit)? <div className='md:col-span-3 col-span-6'/> : <div className='md:col-span-3 col-span-6'>
-                <span>+ New Medication Name: </span>
+                <span>+ New Department Code: </span>
                     <input
-                        name="new_Med_Name"
+                        name="new_Dept_Code"
                         className='bg-slate-100 rounded-2xl px-2'/>
             </div>}
 
-            {/*Price */}
+            {/*Title */}
             <div className='md:col-span-3 col-span-6'>
-                <span>+ Price: </span>
-                {medications.map((medication,index) => <input key={1}
-                    type = 'number'
-                    name="Price"
-                    value={medication.Price}
+                <span>+ Department Title: </span>
+                {departments.map((department,index) => <input key={1}
+                    name="Title"
+                    value={department.Title}
                     disabled = {true}
                     className='bg-slate-100 rounded-2xl px-2'/>)}
             </div>
             {(disableEdit)? <div className='md:col-span-3 col-span-6'/> : <div className='md:col-span-3 col-span-6'>
-                <span>+ New Price: </span>
+                <span>+ New Department Title: </span>
                 <input
-                    type = 'number'
-                    name="new_Price"
+                    name="new_Title"
                     className='bg-slate-100 rounded-2xl px-2'/>
             </div>}
 
-            {/*Expiration date */}
-            <div className='md:col-span-3 col-span-6'>
-                <span>+ Expiration Date: </span>
-                {medications.map((medication,index) => <input key={1}
-                    type='date'
-                    name="Expiration_date"
-                    value={ new Date(medication.Expiration_date).toISOString().split("T")[0]}
-                    disabled = {true}
-                    className='bg-slate-100 rounded-2xl px-2'/>)}
-            </div>
-            {(disableEdit)? <div className='md:col-span-3 col-span-6'/> : <div className='md:col-span-3 col-span-6'>
-                <span>+ New Expiration Date: </span>
+            {/*Dean */}
+            {(disableEdit)? "": <div className='md:col-span-3 col-span-6'>
+                <span>+ DEAN: </span>
                 <input
-                    type='date'
-                    name="new_Expiration_date"
+                    name="Doc_Code_of_Dean"
+                    disabled = {true}
+                    value={deans.find(dean => dean.Dept_Code === Dept_Code)["Doc_Code"]}
+                    className='bg-slate-100 rounded-2xl px-2'/>
+            </div>}
+            {(disableEdit)? "": <div className='md:col-span-3 col-span-6'>
+                <span>+ New DEAN: </span>
+                <select
+                    value={employees.Doc_Code}
+                    name="new_Doc_Code_of_Dean"
+                    className='bg-slate-100 rounded-2xl px-2'>
+                    <option value="">Select a Doctor</option> {/* Lựa chọn mặc định */}
+                        {employees
+                            .filter(employee => employee.Emp_Code.startsWith('D') && (!deans.some(dean => dean.Doc_Code === employee.Emp_Code && dean.Dept_Code !== Dept_Code)))
+                            .map(doctor =>(
+                            <option key={doctor.Emp_Code}>{doctor.Emp_Code}</option>
+                        ))}
+                </select>
+            </div>}
+            
+            {/*Experience year */}
+            {(disableEdit)? "": <div className='md:col-span-3 col-span-6'>
+                <span>+ Experience Year: </span>
+                <input
+                    name="Experience"
+                    disabled = {true}
+                    value={deans.find(dean => dean.Dept_Code === Dept_Code)["Experience_year"]}
+                    className='bg-slate-100 rounded-2xl px-2'/>
+            </div>}
+            {(disableEdit)? "": <div className='md:col-span-3 col-span-6'>
+                <span>+ New Experience Year: </span>
+                <input
+                    name="new_Experience"
+                    type='number'
+                    min={Number(5)}
                     className='bg-slate-100 rounded-2xl px-2'/>
             </div>}
 
-            {/*Effects*/}
-            <div className='col-span-6'>
-                <span>+ Effects: </span>
-                {medications.map((medication,index) => <textarea key={1}
-                    name="Effects"
-                    value={medication.Effects}
-                    disabled = {true}
-                    className='bg-slate-100 rounded-2xl p-2 w-full mt-2 resize-none'
-                    rows={3} /> )}
-            </div>
-            {(disableEdit)? "" : <div className='col-span-6'>
-                <span>+ New Effects: </span>
-                <textarea
-                    name="new_Effects"
-                    className='bg-slate-100 rounded-2xl p-2 w-full mt-2 resize-none'
-                    rows={3}  // Adjust the rows based on how many lines you want visible initially
-                />
-            </div>}
         </div>
         
     );  
     }
 
-    const ProviderTable = () => {
-        return (
-            <div className='justify-center flex'> {/* Provider Table design */}
+    const DeanTable = () =>{
+        if (!disableEdit) return "" ;
+        else return (
+            <div className='justify-center flex'> {/* Dean Table design */}
                     <div className="overflow-x-auto p-3 w-5/6">
-                        <h1 className="text-2xl font-bold my-4">Provider</h1>
+                        <h1 className="text-2xl font-bold my-4">DEAN</h1>
 
                         <table className="table-auto text-lg min-w-full bg-white border border-gray-300">
                             <thead className="bg-gray-100 border-b">
                                 <tr className='*:py-2 *:px-4 *:text-center *:border-x-2 *:font-semibold *:text-gray-700 '>
-                                    <th className="">Provider Number</th>
-                                    <th className="">Provider Name</th>
-                                    <th className="">Phone</th>
-                                    <th className="">Address</th>
-                                    {disableEdit ? "": <th className="">Include</th>}
+                                    <th className="">Employee Code</th>
+                                    <th className="">Date of Birth</th>
+                                    <th className="">Specialty</th>
+                                    <th className="">Degree's Year</th>
+                                    <th className="">Start Date</th>
+                                    <th className="">First Name</th>
+                                    <th className="">Last Name</th>
+                                    <th className="">Phone Number</th>
+                                    <th className="">Gender</th>
+                                    <th className="">Experience Year</th>
                                 </tr>
                             </thead>
-                            {disableEdit ? 
                             <tbody>
-                            {providers.map((provider,index)=> iniMedProviders.some( medProvider => medProvider.Provider_num === provider.Provider_num) ? 
+                            {employees.map((employee,index)=> (deans.some(dean => dean.Doc_Code === employee.Emp_Code && dean.Dept_Code === Dept_Code)) ? 
                                 <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
-                                        <td className="">{provider.Provider_num}</td>
-                                        <td className="">{provider.P_Name}</td>
-                                        <td className="">{provider.Phone}</td>
-                                        <td className=""> {provider.Address}</td>
+                                        <td className="">{employee.Emp_Code}</td>
+                                        <td className="">{new Date(employee.Dob).toISOString().split("T")[0]}</td>
+                                        <td className="">{employee['Specialty Name']}</td>
+                                        <td className=""> {employee["Degree's year"]}</td>
+                                        <td className=""> {new Date(employee["Start date"]).toISOString().split("T")[0]}</td>
+                                        <td className=""> {employee["F_name"]}</td>
+                                        <td className=""> {employee["L_name"]}</td>
+                                        <td className=""> {employee["Phone_number"]}</td>
+                                        <td className=""> {employee["Gender"]}</td>
+                                        <td className=""> {deans.find(dean => dean.Dept_Code === Dept_Code)["Experience_year"]}</td>
                                 </tr>
                             : "")}
-                            </tbody>:<tbody>
-                            {providers.map((provider,index)=>
-                                <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
-                                        <td className="">{provider.Provider_num}</td>
-                                        <td className="">{provider.P_Name}</td>
-                                        <td className="">{provider.Phone}</td>
-                                        <td className=""> {provider.Address}</td>
-                                        <td className=""> 
-                                            <input className='h-6 w-6 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-50' 
-                                            type='checkbox'
-                                            name={provider.Provider_num.toString()}
-                                            defaultChecked = {iniMedProviders.some( medProvider => medProvider.Provider_num === provider.Provider_num)}
-                                            /></td>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+        );
+    }
+
+    const EmployeesTable = () =>{
+        if (!disableEdit) return "";
+        else return (
+            <div className='justify-center flex'> {/* Employees Table design */}
+                    <div className="overflow-x-auto p-3 w-5/6">
+                        <h1 className="text-2xl font-bold my-4">Employees</h1>
+
+                        <table className="table-auto text-lg min-w-full bg-white border border-gray-300">
+                            <thead className="bg-gray-100 border-b">
+                                <tr className='*:py-2 *:px-4 *:text-center *:border-x-2 *:font-semibold *:text-gray-700 '>
+                                    <th className="">Employee Code</th>
+                                    <th className="">Date of Birth</th>
+                                    <th className="">Specialty</th>
+                                    <th className="">Degree's Year</th>
+                                    <th className="">Start Date</th>
+                                    <th className="">First Name</th>
+                                    <th className="">Last Name</th>
+                                    <th className="">Phone Number</th>
+                                    <th className="">Gender</th>
                                 </tr>
-                            )}</tbody>}
+                            </thead>
+                            <tbody>
+                            {employees.map((employee,index)=> (employee.Dept_Code === Dept_Code) ? 
+                                <tr key= {index} className="border-b hover:bg-blue-300 *:py-2 *:px-4 *:border-x-2  hover:*:bg-blue-600 hover:*:font-semibold hover:*:bg-opacity-70">
+                                        <td className="">{employee.Emp_Code}</td>
+                                        <td className="">{new Date(employee.Dob).toISOString().split("T")[0]}</td>
+                                        <td className="">{employee['Specialty Name']}</td>
+                                        <td className=""> {employee["Degree's year"]}</td>
+                                        <td className=""> {new Date(employee["Start date"]  ).toISOString().split("T")[0]}</td>
+                                        <td className=""> {employee["F_name"]}</td>
+                                        <td className=""> {employee["L_name"]}</td>
+                                        <td className=""> {employee["Phone_number"]}</td>
+                                        <td className=""> {employee["Gender"]}</td>
+                                </tr>
+                            : "")}
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -336,12 +371,14 @@ const Department_info = (props)=>{
                 <form onSubmit={handleSubmit}>
                 <div className='grid-cols-6 grid justify-center text-xl p-3 m-auto'> 
                     <h1 className='text-4xl font-bold col-span-6 text-center m-4 mb-10 p-4 shadow-slate-700 shadow-sm'>
-                        MEDICATION No. {MedID}
+                        DEPARTMENT: {Dept_Code}
                     </h1>
                     <EditButton/>
-                    <SpacesForMedInfo/>
+                    <DeleteButton/>
+                    <SpacesForDeptInfo/>
                 </div>
-                <ProviderTable/>
+                <DeanTable/>
+                <EmployeesTable/>
                 <div className='w-full flex justify-center'>
                     {(disableEdit)? "" : <button className='col-span-1 col-start-5 m-5 p-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'
                         type = 'submit'>

@@ -78,7 +78,7 @@ const Departments = (props)=>{
         <Navbar loggedIn={props.loggedIn} setLoggedIn={props.setLoggedIn}/> {/*Navbar component to navigate*/}
         <div className="container mx-auto p-4">
         <div className='flex items-center justify-between'>
-        <h1 className="text-2xl font-bold mb-4">Medication List</h1>
+        <h1 className="text-2xl font-bold mb-4">Department List</h1>
         <form onKeyUp={handleSearch}><input type='search'
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search for department's name" 
@@ -90,7 +90,6 @@ const Departments = (props)=>{
             <tr>
                 <th className="py-2 px-4 text-left font-semibold text-gray-700">Department Code</th>
                 <th className="py-2 px-4 text-left font-semibold text-gray-700">Department Title</th>
-                <th className="py-2 px-4 text-left font-semibold text-gray-700">Dean</th>
             </tr>
             </thead>
             <tbody> 
@@ -99,7 +98,6 @@ const Departments = (props)=>{
                     <td className="py-2 px-4 underline hover:bg-blue-600 hover:text-red-600 hover:font-semibold hover:bg-opacity-70">
                         <Link to={`/departments/info?Department_Code=${department.Dept_Code}` } className="block w-full h-full">{department.Dept_Code}</Link></td>
                     <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{department.Title}</td>
-                    <td className="py-2 px-4  hover:bg-blue-600 hover:font-semibold hover:bg-opacity-70">{department.Doc_Code}</td>
                 </tr> 
             ))} 
             <tr className="border-b hover:bg-blue-300"> 

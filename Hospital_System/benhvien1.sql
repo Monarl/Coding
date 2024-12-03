@@ -130,9 +130,9 @@ VALUES
 ('N005');
 
 CREATE TABLE DEAN (
-	Doc_Code VARCHAR(20) PRIMARY KEY,
-    Dept_Code VARCHAR(20) NOT NULL,
-    `Experience year` INT NOT NULL
+	Doc_Code VARCHAR(20) NOT NULL,
+    Dept_Code VARCHAR(20) PRIMARY KEY,
+    Experience_year INT NOT NULL
 );
 
 INSERT INTO DEAN 
