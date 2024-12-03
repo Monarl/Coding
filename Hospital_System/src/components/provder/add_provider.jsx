@@ -119,7 +119,7 @@ const Add_provider = (props)=>{
             console.error(error);
             isGood = false;
         }
-        if (isGood) {navigate(-1);}
+        if (isGood) {navigate('/providers');}
 
     }
     //#endregion

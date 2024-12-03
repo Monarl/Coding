@@ -121,7 +121,7 @@ const Add_medication = (props)=>{
             console.error(error);
             isGood = false;
         }
-        if (isGood) {navigate(-1);}
+        if (isGood) {navigate('/medications');}
     }
 
     //#endregion
