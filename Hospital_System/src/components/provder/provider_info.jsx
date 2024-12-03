@@ -250,13 +250,13 @@ const Provider_info = (props)=>{
         return(<button type='button' onClick={handelDelete} className='col-span-1 col-start-5 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Delete 🗑️</button>);
     } 
     
-    const SpacesForMedInfo = () =>{  //the area contains info of provider
+    const SpacesForProviderInfo = () =>{  //the area contains info of provider
     return (
         <div className='grid grid-cols-6 gap-y-5 mb-4 gap-x-1 col-span-6'>
             {/* P_Name */}
             <div className='md:col-span-3 col-span-6'>
                 <span>+ Provider Name: </span>
-                    {providers.map((provider,index) => <input key={index}
+                    {providers.map((provider,index) => <input key={1}
                         name="P_Name"
                         value={provider.P_Name}
                         disabled = {true}
@@ -272,7 +272,7 @@ const Provider_info = (props)=>{
             {/*Phone */}
             <div className='md:col-span-3 col-span-6'>
                 <span>+ Phone: </span>
-                {providers.map((provider,index) => <input key={index}
+                {providers.map((provider,index) => <input key={1}
                     name="Phone"
                     value={provider.Phone}
                     disabled = {true}
@@ -290,7 +290,7 @@ const Provider_info = (props)=>{
             {/*Address*/}
             <div className='col-span-6'>
                 <span>+ Address: </span>
-                {providers.map((provider,index) => <textarea key={index}
+                {providers.map((provider,index) => <textarea key={1}
                     name="Address"
                     value={provider.Address}
                     disabled = {true}
@@ -373,7 +373,7 @@ const Provider_info = (props)=>{
                     </h1>
                     <EditButton/>
                     <DeleteButton/>
-                    <SpacesForMedInfo/>
+                    <SpacesForProviderInfo/>
                 </div>
                 <MedTable/>
                 <div className='w-full flex justify-center'>

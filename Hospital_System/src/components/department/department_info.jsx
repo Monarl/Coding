@@ -208,7 +208,7 @@ const Department_info = (props)=>{
             {/*Med Name */}
             <div className='md:col-span-3 col-span-6'>
                 <span>+ Medication Name: </span>
-                    {medications.map((medication,index) => <input key={index}
+                    {medications.map((medication,index) => <input key={1}
                         name="Med_Name"
                         value={medication.Med_Name}
                         disabled = {true}
@@ -224,7 +224,7 @@ const Department_info = (props)=>{
             {/*Price */}
             <div className='md:col-span-3 col-span-6'>
                 <span>+ Price: </span>
-                {medications.map((medication,index) => <input key={index}
+                {medications.map((medication,index) => <input key={1}
                     type = 'number'
                     name="Price"
                     value={medication.Price}
@@ -242,7 +242,7 @@ const Department_info = (props)=>{
             {/*Expiration date */}
             <div className='md:col-span-3 col-span-6'>
                 <span>+ Expiration Date: </span>
-                {medications.map((medication,index) => <input key={index}
+                {medications.map((medication,index) => <input key={1}
                     type='date'
                     name="Expiration_date"
                     value={ new Date(medication.Expiration_date).toISOString().split("T")[0]}
@@ -260,7 +260,7 @@ const Department_info = (props)=>{
             {/*Effects*/}
             <div className='col-span-6'>
                 <span>+ Effects: </span>
-                {medications.map((medication,index) => <textarea key={index}
+                {medications.map((medication,index) => <textarea key={1}
                     name="Effects"
                     value={medication.Effects}
                     disabled = {true}
