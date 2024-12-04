@@ -2,6 +2,7 @@ import mysql from 'mysql2';
 import express from 'express';
 import dotenv from 'dotenv';
 import {db} from "./index.js"
+import employees from '../components/employees.jsx';
 
 // Load environment variables
 dotenv.config({ path: '../../Login_secret_key.env' });
@@ -103,7 +104,7 @@ router.get('/get_deans', (req, res) => {                                     //f
 });
 
 router.put('/update_dean', (req, res) => {                               //update dean of a department
-    const {Doc_Code, Experience_year, oldDept_Code} = req.body;
+    const {Doc_Code, Experience_year, oldDept_Code, oldDoc_Code} = req.body;
     const updateQuery = 'UPDATE dean SET Doc_Code = ?, Experience_year = ? WHERE Dept_Code = ? ';
     db.query(updateQuery, [Doc_Code, Experience_year, oldDept_Code], (err, result) => {
         if (err) {
@@ -111,10 +112,63 @@ router.put('/update_dean', (req, res) => {                               //updat
             return;
         } else {
             res.status(201).json(result);
+            db.query( "UPDATE user SET Role = 'Dean' WHERE User_Code = ?", [Doc_Code],(err) =>{
+                if (err){
+                    res.status(500).json({erro:err});
+                    return;
+                }else {
+                    db.query( "UPDATE user SET Role = 'Employee' WHERE User_Code = ?", [oldDoc_Code],(err) =>{
+                        if (err){
+                            res.status(500).json({erro:err});
+                            return;
+                        }
+                    })
+                }
+            })
         }
     });
 });
 
+router.delete('/delete_Dean', (req, res) => {               //delete dean from dean table
+    const { Dept_Code } = req.body;
+    const deleteQuery = 'DELETE FROM dean where Dept_Code = ?';
+    db.query(deleteQuery, [Dept_Code], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        } else {
+            res.status(201).json(result);
+            console.log(result);
+        }
+    });
+});
 
+router.delete('/delete', (req, res) => {            //dellete department
+    const { Dept_Code } = req.body;
+    const deleteQuery = 'DELETE FROM department where Dept_Code = ?';
+    db.query(deleteQuery, [Dept_Code], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        } else {
+            res.status(201).json(result);
+            console.log(result);
+        }
+    });
+});
 
-export default router;
+router.put('/change_to_employee', (req, res) => {            //change dean role back to employee when delete
+    const { Doc_Code } = req.body;
+    const updateQuery = "UPDATE user SET role = 'Employee' where Doc_Code = ?";
+    db.query(updateQuery, [Doc_Code], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err });
+            return;
+        } else {
+            res.status(201).json(result);
+            console.log(result);
+        }
+    });
+});
+
+export default router;  
