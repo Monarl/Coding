@@ -132,7 +132,7 @@ const Department_info = (props)=>{
 
         //update dean
         try{
-            const payLoad = {Doc_Code, Experience_year, oldDept_Code};
+            const payLoad = {Doc_Code, Experience_year, oldDept_Code, oldDoc_Code};
             const response = await fetch('http://localhost:8000/departments/update_dean',{
                 method:'PUT',
                 headers:{
@@ -154,6 +154,7 @@ const Department_info = (props)=>{
             isGood = false;
         }
 
+        //update ddepartment
         try{
             const payLoad = {Dept_Code, Title, oldDept_Code};
             const response = await fetch('http://localhost:8000/departments/update',{
@@ -182,6 +183,93 @@ const Department_info = (props)=>{
         if (isGood) {navigate('/departments');}
     };
 
+    const handelDelete = async() =>{
+        if(employees.some(employee => employee.Dept_Code === Dept_Code)){           //if there are emp in the dept, cancel delete
+            alert("Cannot delete department having employees.")
+            return;
+        }
+
+        let isGood = true;
+        const Doc_Code = deans.find(dean => dean.Dept_Code === Dept_Code)["Doc_Code"];
+
+        //change employee role
+        try{
+            const payLoad = {Doc_Code};
+            const response = await fetch ('http://localhost:8000/departments/change_to_employee',{
+                method:'PUT',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Role changed successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to change role:', errorData);
+                alert("Role changed Fail");
+                isGood = false;
+            }
+        }catch(err){
+            setError(err.message);
+            alert("Role changed Fail");
+            isGood = false;
+        }
+
+        //delete dean from dean table
+        try{
+            const payLoad = {Doc_Code};
+            const response = await fetch ('http://localhost:8000/departments/delete_Dean',{
+                method:'DELETE',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Dean deleted successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to delete Dean:', errorData);
+                alert("Dean deleted Fail");
+                isGood = false;
+            }
+        }catch(err){
+            setError(err.message);
+            alert("Dean deleted Fail");
+            isGood = false;
+        }
+
+        //delete department
+        try{
+            const payLoad = {Dept_Code};
+            const response = await fetch ('http://localhost:8000/departments/delete',{
+                method:'DELETE',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(payLoad),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Department deleted successfully:', data);
+            } else{
+                const errorData = await response.json();
+                console.error('Failed to delete department:', errorData);
+                alert("Department deleted Fail");
+                isGood = false;
+            }
+        }catch(err){
+            setError(err.message);
+            alert("Department deleted Fail");
+            isGood = false;
+        }
+
+        if (isGood) navigate('/departments');
+    }
+
     //#endregion
 
     //#region Elements in html
@@ -191,7 +279,7 @@ const Department_info = (props)=>{
     } 
 
     const DeleteButton = () => {      // the button for deleting
-        return(<button type='button' className='col-span-1 col-start-5 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Delete 🗑️</button>);
+        return(<button type='button' onClick= {() => handelDelete()} className='col-span-1 col-start-5 mb-10 py-4 text-center bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75'>Delete 🗑️</button>);
     } 
 
     const SpacesForDeptInfo = () =>{  //the area contains info of medication

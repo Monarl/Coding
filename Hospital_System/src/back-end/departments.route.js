@@ -2,7 +2,6 @@ import mysql from 'mysql2';
 import express from 'express';
 import dotenv from 'dotenv';
 import {db} from "./index.js"
-import employees from '../components/employees.jsx';
 
 // Load environment variables
 dotenv.config({ path: '../../Login_secret_key.env' });
@@ -130,9 +129,9 @@ router.put('/update_dean', (req, res) => {                               //updat
 });
 
 router.delete('/delete_Dean', (req, res) => {               //delete dean from dean table
-    const { Dept_Code } = req.body;
-    const deleteQuery = 'DELETE FROM dean where Dept_Code = ?';
-    db.query(deleteQuery, [Dept_Code], (err, result) => {
+    const { Doc_Code } = req.body;
+    const deleteQuery = 'DELETE FROM dean where Doc_Code = ?';
+    db.query(deleteQuery, [Doc_Code], (err, result) => {
         if (err) {
             res.status(500).json({ error: err });
             return;
@@ -159,7 +158,7 @@ router.delete('/delete', (req, res) => {            //dellete department
 
 router.put('/change_to_employee', (req, res) => {            //change dean role back to employee when delete
     const { Doc_Code } = req.body;
-    const updateQuery = "UPDATE user SET role = 'Employee' where Doc_Code = ?";
+    const updateQuery = "UPDATE user SET role = 'Employee' where User_Code = ?";
     db.query(updateQuery, [Doc_Code], (err, result) => {
         if (err) {
             res.status(500).json({ error: err });
