@@ -742,6 +742,13 @@ BEGIN
             p_Emp_Code, p_F_name, p_L_name, p_Phone_number, p_Gender, p_Dob, p_Address,
             p_Start_date, p_Dept_Code, p_Specialty_Name, p_Degree_year, p_Working
         );
+        
+        -- Kiểm tra và chèn vào bảng DOCTOR hoặc NURSE
+        IF SUBSTRING(p_Emp_Code, 1, 1) = 'D' THEN
+            INSERT INTO DOCTOR (Doc_Code) VALUES (p_Emp_Code);
+        ELSEIF SUBSTRING(p_Emp_Code, 1, 1) = 'N' THEN
+            INSERT INTO NURSE (Nurse_Code) VALUES (p_Emp_Code);
+        END IF;
     END IF;
 END //
 
