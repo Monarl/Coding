@@ -100,6 +100,25 @@ const MainPage = (props) => {
               </div>
             </div>
           </button>
+
+          {/* Employee Button */}
+          {user?.Role == 'Manager' && (
+            <button
+                className="aspect-square min-w-[75%] max-h-[100%] m-auto font-bkel transition-all duration-500 
+                        hover:scale-105 hover:font-bold rounded-lg overflow-hidden"
+                onClick={() => navigate('/departments')}
+            >
+                <div className="flex flex-col items-center justify-center h-full w-full">
+                <div className="flex items-center justify-center w-full h-1/2 bg-yellow-600 text-white text-[5vw] md:text-[3vw]">
+                🏢
+                </div>
+                <div className="w-full h-0.5 bg-gray-400"></div>
+                <div className="flex items-center justify-center w-full h-1/2 bg-white text-gray-800 text-[3vw] md:text-[1.5vw]">
+                    Departments
+                </div>
+                </div>
+            </button>
+            )}
         </div>
       </div>
     </div>
