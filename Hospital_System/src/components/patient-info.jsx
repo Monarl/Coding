@@ -103,7 +103,7 @@ const PatientInfo = (props) => {
                         const value = obj[key];
                 
                         // Check if the key contains 'date' or 'dob' (case-insensitive)
-                        if (/date|dob/i.test(key)) {
+                        if (/date|dob|next/i.test(key)) {
                             // Check if the value is a string and looks like a valid date
                             if (typeof value === 'string') {
                                 const parsedDate = new Date(value);
