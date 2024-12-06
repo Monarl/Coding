@@ -402,6 +402,7 @@ const PatientInfo = (props) => {
                                     onChange={handleChange}
                                     disabled={edited}
                                     required={!edited}
+                                    max={patientData.Dateofdischarge ? new Date(patientData.Dateofdischarge).toISOString().split("T")[0] : ''}
                                     className='bg-slate-100 rounded-2xl px-2 w-1/2'
                                 />
                             </div>
@@ -541,6 +542,7 @@ const PatientInfo = (props) => {
                                                 name="Start date"
                                                 value={patient["Start date"] || patient["new_Start date"] ? new Date(patient['new_Start date'] || patient["Start date"]).toISOString().split("T")[0] : ''}
                                                 onChange={(e) => handleTable(e, index)}
+                                                max={patient["new_End date"] || patient["End date"] ? new Date(patient["new_End date"] || patient["End date"]).toISOString().split("T")[0] : ''}
                                                 disabled={edited}
                                                 required={!edited}
                                                 className="rounded-md bg-opacity-50 px-2 disabled:bg-transparent text-center"
@@ -549,6 +551,7 @@ const PatientInfo = (props) => {
                                                 type='date'
                                                 name="Examination date"
                                                 value={patient["Examination date"] || patient["new_Examination date"] ? new Date(patient["new_Examination date"] || patient["Examination date"]).toISOString().split("T")[0] : ''}
+                                                max={patient["Next_examination"] || patient["new_Next_examination"] ? new Date(patient["new_Next_examination"] || patient["Next_examination"]).toISOString().split("T")[0] : ''}
                                                 onChange={(e) => handleTable(e, index)}
                                                 disabled={edited}
                                                 required={!edited}
