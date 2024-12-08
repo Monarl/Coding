@@ -53,6 +53,12 @@ router.post('/add_dean', async(req,res) =>{                   //use to add new d
             res.status(500).json({error: err}); 
             return;
         } 
+        db.query(`UPDATE user SET Role = 'Dean' WHERE User_Code = ?;`, [Doc_Code], (err) => {
+            if (err) {
+                res.status(500).json({error: err}); 
+                return;
+            } 
+        });
         res.status(201).json(results);
     });
 });
