@@ -34,8 +34,8 @@ router.get('/employee-list', (req, res) => {
         FROM EMPLOYEE e
         WHERE e.Dept_Code = (
             SELECT Dept_Code
-            FROM EMPLOYEE
-            WHERE Emp_Code = ?
+            FROM DEAN
+            WHERE Doc_Code = ?
         )
         AND e.Emp_Code != ?
         AND (e.F_name LIKE ? OR e.L_name LIKE ? OR e.Emp_Code LIKE ?)
