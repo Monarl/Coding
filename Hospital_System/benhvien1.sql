@@ -755,3 +755,73 @@ END //
 
 DELIMITER ;
 
+DELIMITER //
+
+CREATE TRIGGER check_patient_age 
+BEFORE INSERT ON PATIENT
+FOR EACH ROW
+BEGIN
+    DECLARE age INT;
+
+    -- Check if Dob is NULL
+    IF NEW.Dob IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be NULL.';
+    END IF;
+
+    -- Check if Dob is in the future
+    IF NEW.Dob > CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be in the future.';
+    END IF;
+
+    -- Calculate age based on the date of birth
+    SET age = TIMESTAMPDIFF(YEAR, NEW.Dob, CURDATE());
+
+    -- Check if age is within the valid range
+    IF age > 130 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Age must be between 0 and 130 years.';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER check_patient_age_update 
+BEFORE UPDATE ON PATIENT
+FOR EACH ROW
+BEGIN
+    DECLARE age INT;
+
+    -- Check if Dob is NULL
+    IF NEW.Dob IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be NULL.';
+    END IF;
+
+    -- Check if Dob is in the future
+    IF NEW.Dob > CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be in the future.';
+    END IF;
+
+    -- Calculate age based on the date of birth
+    SET age = TIMESTAMPDIFF(YEAR, NEW.Dob, CURDATE());
+
+    -- Check if age is within the valid range
+    IF age > 130 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Age must be between 0 and 130 years.';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
