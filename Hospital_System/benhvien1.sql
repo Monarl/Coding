@@ -489,7 +489,7 @@ BEGIN
 		IF (SELECT COUNT(*) FROM treatment_detail 
 			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate) != 0 
 			AND (SELECT COUNT(*) FROM treatment_med 
-			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate AND Med_Code = new_Med_Code) = 0 THEN 
+			WHERE IP_Code = ID AND Doc_Code = new_Doc AND `Start date` = new_Sdate AND `End date` = new_Edate AND treatment_med.Med_Code = new_Med_Code) = 0 THEN 
 			INSERT INTO treatment_med (IP_Code, Doc_Code, `Start date`, `End date`, Med_Code)
 			VALUES (ID, new_Doc, new_Sdate, new_Edate, new_Med_Code);
         ELSE
@@ -586,7 +586,7 @@ BEGIN
 		IF (SELECT COUNT(*) FROM examination_detail 
 			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate) != 0 
 			AND (SELECT COUNT(*) FROM examination_med 
-			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate AND Med_Code = new_Med_Code) = 0 THEN 
+			WHERE OP_Code = ID AND Doc_Code = new_Doc AND `Examination date` = new_Edate AND examination_med.Med_Code = new_Med_Code) = 0 THEN 
 			INSERT INTO examination_med (OP_Code, Doc_Code, `Examination date`, Med_Code)
 			VALUES (ID, new_Doc, new_Edate, new_Med_Code);
         ELSE
@@ -613,13 +613,13 @@ BEGIN
                 
 		ELSE
 			IF (SELECT COUNT(*) FROM examination_med 
-				WHERE OP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `Examination date` = Edate) > 1 THEN
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate) > 1 THEN
 				INSERT INTO examination_detail (OP_Code, Doc_Code, `Examination date`, Diagnosis, Fee, Next_examination)
 				VALUES (ID, new_Doc, new_Edate, new_diagnosis, new_fee, Ndate);
                 
                 UPDATE examination_med
 				SET Doc_Code = new_Doc, `Examination date` = new_Edate, Med_Code = new_Med_Code
-				WHERE OP_Code = ID AND Doc_Code = Doc AND `Start date` = Sdate AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
+				WHERE OP_Code = ID AND Doc_Code = Doc AND `Examination date` = Edate AND Med_Code = examination_med.Med_Code;
 			ELSE
 				UPDATE examination_detail
 				SET Doc_Code = new_Doc, `Examination date` = new_Edate, Diagnosis = new_diagnosis, Fee = new_fee, Next_examination = Ndate
@@ -754,4 +754,74 @@ END //
 
 
 DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER check_patient_age 
+BEFORE INSERT ON PATIENT
+FOR EACH ROW
+BEGIN
+    DECLARE age INT;
+
+    -- Check if Dob is NULL
+    IF NEW.Dob IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be NULL.';
+    END IF;
+
+    -- Check if Dob is in the future
+    IF NEW.Dob > CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be in the future.';
+    END IF;
+
+    -- Calculate age based on the date of birth
+    SET age = TIMESTAMPDIFF(YEAR, NEW.Dob, CURDATE());
+
+    -- Check if age is within the valid range
+    IF age > 130 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Age must be between 0 and 130 years.';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER check_patient_age_update 
+BEFORE UPDATE ON PATIENT
+FOR EACH ROW
+BEGIN
+    DECLARE age INT;
+
+    -- Check if Dob is NULL
+    IF NEW.Dob IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be NULL.';
+    END IF;
+
+    -- Check if Dob is in the future
+    IF NEW.Dob > CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Date of Birth (Dob) cannot be in the future.';
+    END IF;
+
+    -- Calculate age based on the date of birth
+    SET age = TIMESTAMPDIFF(YEAR, NEW.Dob, CURDATE());
+
+    -- Check if age is within the valid range
+    IF age > 130 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Age must be between 0 and 130 years.';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
 
