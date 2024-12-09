@@ -331,7 +331,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'D003'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'D003'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'D003'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'D003'@'localhost';
-GRANT SELECT ON hospital.employee to 'D003'@'localhost';
 
 -- For D004
 GRANT SELECT, INSERT ON hospital.provide TO 'D004'@'localhost';
@@ -344,7 +343,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'D004'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'D004'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'D004'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'D004'@'localhost';
-GRANT SELECT ON hospital.employee to 'D004'@'localhost';
 
 -- For D005
 GRANT SELECT, INSERT ON hospital.provide TO 'D005'@'localhost';
@@ -357,7 +355,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'D005'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'D005'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'D005'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'D005'@'localhost';
-GRANT SELECT ON hospital.employee to 'D005'@'localhost';
 
 -- For N001
 GRANT SELECT, INSERT ON hospital.provide TO 'N001'@'localhost';
@@ -370,7 +367,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'N001'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'N001'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'N001'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'N001'@'localhost';
-GRANT SELECT ON hospital.employee to 'N001'@'localhost';
 
 -- For N002
 GRANT SELECT, INSERT ON hospital.provide TO 'N002'@'localhost';
@@ -383,7 +379,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'N002'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'N002'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'N002'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'N002'@'localhost';
-GRANT SELECT ON hospital.employee to 'N002'@'localhost';
 
 -- For N003
 GRANT SELECT, INSERT ON hospital.provide TO 'N003'@'localhost';
@@ -396,7 +391,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'N003'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'N003'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'N003'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'N003'@'localhost';
-GRANT SELECT ON hospital.employee to 'N003'@'localhost';
 
 -- For N004
 GRANT SELECT, INSERT ON hospital.provide TO 'N004'@'localhost';
@@ -409,7 +403,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'N004'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'N004'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'N004'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'N004'@'localhost';
-GRANT SELECT ON hospital.employee to 'N004'@'localhost';
 
 -- For N005
 GRANT SELECT, INSERT ON hospital.provide TO 'N005'@'localhost';
@@ -422,7 +415,6 @@ GRANT SELECT, INSERT ON hospital.treatment_detail TO 'N005'@'localhost';
 GRANT SELECT, INSERT ON hospital.outpatient TO 'N005'@'localhost';
 GRANT SELECT, INSERT ON hospital.inpatient TO 'N005'@'localhost';
 GRANT SELECT, INSERT ON hospital.patient TO 'N005'@'localhost';
-GRANT SELECT ON hospital.employee to 'N005'@'localhost';
 
 -- SELECT * FROM information_schema.TABLE_PRIVILEGES WHERE GRANTEE LIKE "'N005'@'localhost'";
 
