@@ -186,7 +186,7 @@ const Add_department = (props)=>{
                     className='bg-slate-100 rounded-2xl px-2'>
                     <option value="">Select a Doctor</option> {/* Lựa chọn mặc định */}
                         {employees
-                            .filter(employee => employee.Emp_Code.startsWith('D') && (!deans.some(dean => dean.Doc_Code === employee.Emp_Code)))
+                            .filter(employee => (employee.Emp_Code.startsWith('D') && employee.Working != 'Resigned') && (!deans.some(dean => dean.Doc_Code === employee.Emp_Code)))
                             .map(doctor =>(
                             <option key={doctor.Emp_Code} required>{doctor.Emp_Code}</option>
                         ))}
